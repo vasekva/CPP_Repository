@@ -1,0 +1,9 @@
+# ninja log v5
+1	1947	1651860356000000000	CMakeFiles/Webserv_t_exercise.dir/Server.cpp.o	1d5e221dad2756c3
+0	2382	1651860357000000000	CMakeFiles/Webserv_t_exercise.dir/main.cpp.o	eafc112aed41824c
+2383	2431	1651860357000000000	Webserv_t_exercise	bd0e1233cd955d6
+1	1958	1651860356000000000	CMakeFiles/Webserv_t_exercise.dir/Users/jberegon/CLionProjects/Webserv_t_exercise/client/Client.cpp.o	ec4572eecca0d91a
+7	98	1651860455000000000	Webserv_t_exercise	f52288ee16f122b7
+10	1443	1651860686000000000	CMakeFiles/Webserv_t_exercise.dir/main.cpp.o	eafc112aed41824c
+4	1900	1651861566000000000	CMakeFiles/Webserv_t_exercise.dir/Server.cpp.o	1d5e221dad2756c3
+1900	1976	1651861567000000000	Webserv_t_exercise	f52288ee16f122b7

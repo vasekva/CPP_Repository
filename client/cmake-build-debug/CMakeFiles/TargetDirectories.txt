@@ -1,0 +1,3 @@
+/Users/jberegon/CLionProjects/Webserv_t_exercise/client/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/Users/jberegon/CLionProjects/Webserv_t_exercise/client/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/jberegon/CLionProjects/Webserv_t_exercise/client/cmake-build-debug/CMakeFiles/Webserv_t_exercise.dir

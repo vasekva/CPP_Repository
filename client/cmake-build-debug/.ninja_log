@@ -1,0 +1,7 @@
+# ninja log v5
+0	140	1651860459000000000	build.ninja	e417a9a6c5f9843
+1	1957	1651860461000000000	CMakeFiles/Webserv_t_exercise.dir/Client.cpp.o	bd0e40dbd8ee18ca
+1	2422	1651860462000000000	CMakeFiles/Webserv_t_exercise.dir/main.cpp.o	c46095b8247c2116
+2423	2487	1651860462000000000	Webserv_t_exercise	c1952e15b8c2f504
+12	2051	1651861579000000000	CMakeFiles/Webserv_t_exercise.dir/Client.cpp.o	bd0e40dbd8ee18ca
+2051	2122	1651861579000000000	Webserv_t_exercise	c1952e15b8c2f504
