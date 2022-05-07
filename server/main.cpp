@@ -20,8 +20,8 @@ int main(int argc, char **argv)
 		}
 		io_context context;
 
-		Server server = Server();
-		server.make_accept(context, std::atoi(argv[1]));
+		Server serv(context, std::atoi(argv[1]));
+		context.run();
 	}
 	catch (std::exception &e)
 	{

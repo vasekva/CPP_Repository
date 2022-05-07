@@ -7,6 +7,7 @@
 
 #include <boost/asio.hpp>
 #include <iostream>
+#include <memory>
 
 using namespace boost::asio;
 using boost::asio::ip::tcp;
@@ -14,9 +15,12 @@ using boost::asio::ip::tcp;
 class Server
 {
 	private:
-
+		tcp::acceptor _acceptor;
+		void do_accept();
 	public:
-		void make_accept(io_context &context, int port);
+		Server(boost::asio::io_context &context, short port);
+		~Server();
+//		void make_accept(io_context &context, int port);
 };
 
 
