@@ -6,7 +6,6 @@
 
 const int max_length = 1024;
 
-
 class Session
 	: public std::enable_shared_from_this<Session>
 {
@@ -23,27 +22,36 @@ class Session
 	private:
 		void do_read()
 		{
-			auto self(shared_from_this());
+			auto self(shared_from_this()); // поддерживает жизнь сеанса благодаря умному указателю
+
 			_sock.async_read_some(boost::asio::buffer(_data, max_length),
-			[this, self](boost::system::error_code ec, std::size_t length)
+			[this, self](boost::system::error_code error, std::size_t length)
 			{
-				if (!ec)
+				if (!error)
 				{
 					std::cout << "[Server] has received a message: " <<
 						_data << std::endl;
+					auto endpoint = _sock.remote_endpoint(error);
+					std::cout << "Remote endpoint: " << endpoint <<
+						std::endl;
 					do_write(length);
 				}
+				else
+					std::cerr << error.message() << "\n";
 			});
+			memset(_data, 0, max_length);
 		}
 
 		void do_write(std::size_t length)
 		{
-			auto self(shared_from_this());
+			auto self(shared_from_this()); // поддерживает жизнь сеанса благодаря умному указателю
 			boost::asio::async_write(_sock, boost::asio::buffer(_data, length),
-			[this, self](boost::system::error_code ec, std::size_t length)
+			[this, self](boost::system::error_code error, std::size_t length)
 			{
-				if (!ec)
+				if (!error)
 					do_read();
+				else
+					std::cerr << error.message() << "\n";
 			});
 		}
 
@@ -52,65 +60,27 @@ class Session
 		char _data[max_length];
 };
 
-Server::Server(boost::asio::io_context &context, short port)
+Server::Server(boost::asio::io_context &context, std::uint16_t  port)
 	: _acceptor(context, tcp::endpoint(tcp::v4(), port))
 {
-	do_accept();
 }
 
 Server::~Server() {}
 
-void Server::do_accept()
+void Server::async_accept()
 {
+	// ожидает входящие подключения,
+	// после этого создает новый объект сеанса и
+	// перемещает связанный сокет в новый сеанс,
+	// переключаясь на ожидание нового подключения
 	_acceptor.async_accept(
-		[this](boost::system::error_code ec, tcp::socket sock)
+		[this](boost::system::error_code error, tcp::socket sock)
 		{
-			if (!ec)
+			if (!error)
 				std::make_shared<Session>(std::move(sock))->start();
+			else
+				std::cerr << error.message() << "\n";
 
-			do_accept();
+			async_accept();
 		});
 }
-
-//static void session(tcp::socket sock)
-//{
-//	std::cout << "[Server] Connection has been accepted" << std::endl;
-//	try
-//	{
-//		for (;;)
-//		{
-//			char data[max_length];
-//
-//			boost::system::error_code error;
-//			size_t length = sock.read_some(boost::asio::buffer(data), error);
-//			if (length != 0)
-//			{
-//				std::cout << "[Server] has received a message: " <<
-//					data << std::endl;
-//			}
-//
-//			if (error == boost::asio::error::eof)
-//				break;
-//			else if (error)
-//				throw boost::system::system_error(error);
-//
-//			boost::asio::write(sock, boost::asio::buffer(data, length));
-//		}
-//	}
-//	catch (std::exception &e)
-//	{
-//		std::cerr << "Exception in thread: " << e.what() << "\n";
-//	}
-//}
-
-//void Server::make_accept(io_context &context, int port)
-//{
-//	tcp::endpoint endpoint(tcp::v4(), port);
-//	tcp::acceptor acceptor(context, endpoint);
-//
-//	std::cout << "[Server] is listening port " << port << "..." << std::endl;
-//	for (;;)
-//	{
-//		std::thread(session, acceptor.accept()).detach();
-//	}
-//}

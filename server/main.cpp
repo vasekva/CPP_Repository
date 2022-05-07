@@ -21,9 +21,10 @@ int main(int argc, char **argv)
 		io_context context;
 
 		Server serv(context, std::atoi(argv[1]));
+		serv.async_accept();
 		context.run();
 	}
-	catch (std::exception &e)
+	catch (std::exception const &e)
 	{
 		std::cerr << "Exception: " << e.what() << "\n";
 	}

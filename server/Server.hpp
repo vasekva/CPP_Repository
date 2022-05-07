@@ -16,10 +16,11 @@ class Server
 {
 	private:
 		tcp::acceptor _acceptor;
-		void do_accept();
 	public:
-		Server(boost::asio::io_context &context, short port);
+		Server(boost::asio::io_context &context, std::uint16_t  port);
 		~Server();
+
+		void async_accept();
 //		void make_accept(io_context &context, int port);
 };
 
