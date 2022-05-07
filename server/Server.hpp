@@ -16,7 +16,7 @@ class Server
 	private:
 
 	public:
-		void make_listen();
+		void make_accept(io_context &context, int port);
 };
 
 

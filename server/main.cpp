@@ -11,8 +11,21 @@ int main(int argc, char **argv)
 {
 	std::cout << "Hello, World!" << std::endl;
 
-	Server server = Server();
-	server.make_listen();
+	try
+	{
+		if (argc != 2)
+		{
+			std::cerr << "server <port>\n";
+			return (-1);
+		}
+		io_context context;
 
+		Server server = Server();
+		server.make_accept(context, std::atoi(argv[1]));
+	}
+	catch (std::exception &e)
+	{
+		std::cerr << "Exception: " << e.what() << "\n";
+	}
 	return 0;
 }

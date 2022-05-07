@@ -14,9 +14,11 @@ using boost::asio::ip::tcp;
 class Client
 {
 	public:
-		void make_connect();
+		void start_messaging(std::string &host, std::string &port);
 
 	private:
+		enum { max_length = 1024 };
+
 };
 
 

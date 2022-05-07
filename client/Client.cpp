@@ -4,23 +4,25 @@
 
 #include "Client.hpp"
 
-std::vector<char> buff(256);
-
-void ReadHandler(boost::system::error_code ex)
+void Client::start_messaging(std::string &host, std::string &port)
 {
-	std::cout << " print the buffer data..." << std::endl;
-	std::cout << buff.data() << std::endl;
-}
+	io_context context;
 
-void Client::make_connect()
-{
+	tcp::socket sock(context);
 
-	io_service service;
-	tcp::endpoint endpoint(ip::address::from_string("127.0.0.1"), 4000);
-	tcp::socket socket(service);
+	// provides the ability to resolve a query to a list of endpoints
+	tcp::resolver resolver_t(context);
+	connect(sock, resolver_t.resolve(host, port));
 
-	std::cout << "[Client] Connecting to server..." << std::endl;
+	std::cout << "[Client] Enter a message: ";
+	char request[max_length];
+	std::cin.getline(request, max_length);
+	size_t request_length = std::strlen(request);
+	boost::asio::write(sock, boost::asio::buffer(request, request_length));
 
-	socket.connect(endpoint);
-	std::cout << "[Client] Connection successful!" << std::endl;
+	char reply[max_length];
+	size_t reply_length = boost::asio::read(sock, boost::asio::buffer(reply, request_length));
+	std::cout << "[Client] Reply message is: ";
+	std::cout.write(reply, reply_length);
+	std::cout << "\n";
 }
