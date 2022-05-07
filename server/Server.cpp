@@ -27,17 +27,24 @@ class Session
 			_sock.async_read_some(boost::asio::buffer(_data, max_length),
 			[this, self](boost::system::error_code error, std::size_t length)
 			{
+				// получение сообщения
 				if (!error)
 				{
-					std::cout << "[Server] has received a message: " <<
-						_data << std::endl;
-					auto endpoint = _sock.remote_endpoint(error);
-					std::cout << "Remote endpoint: " << endpoint <<
-						std::endl;
+					std::cout << "[Server] client " << _sock.remote_endpoint(error) <<
+						" has send a message: " << _data << std::endl;
 					do_write(length);
 				}
+				// проверка но отключение, либо ошибку
 				else
-					std::cerr << error.message() << "\n";
+				{
+					if (error == boost::asio::error::eof)
+					{
+						std::cout << "[Server] client " << _sock.remote_endpoint(error) <<
+							" disconnected" << std::endl;
+					}
+					else
+						std::cerr << error.message() << "\n";
+				}
 			});
 			memset(_data, 0, max_length);
 		}
@@ -69,6 +76,7 @@ Server::~Server() {}
 
 void Server::async_accept()
 {
+	std::cout << "[Server] is waiting a new connection..." << std::endl;
 	// ожидает входящие подключения,
 	// после этого создает новый объект сеанса и
 	// перемещает связанный сокет в новый сеанс,
@@ -76,6 +84,8 @@ void Server::async_accept()
 	_acceptor.async_accept(
 		[this](boost::system::error_code error, tcp::socket sock)
 		{
+			std::cout << "New connection has been accepted!" << std::endl;
+			std::cout << "New client is: " << sock.remote_endpoint(error) << std::endl;
 			if (!error)
 				std::make_shared<Session>(std::move(sock))->start();
 			else
