@@ -15,8 +15,9 @@ class Client
 {
 	public:
 		void start_messaging(std::string &host, std::string &port);
-
 	private:
+		double	get_random_double();
+		int		get_random_delay();
 		enum { max_length = 1024 };
 
 };
