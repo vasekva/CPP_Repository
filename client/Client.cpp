@@ -40,13 +40,20 @@ void Client::start_messaging(std::string &host, std::string &port)
 
 	//TODO: отключение, если сервер закрылся
 	std::string rqst_msg;
+	double x = 0.0;
+	double y = 0.0;
+	int delay = 0;
 	while (1)
 	{
-		int delay = get_random_delay();
+		x = get_random_double();
+		delay = get_random_delay();
 		sleep(delay);
+		y = get_random_double();
 
-		rqst_msg = std::string("value: ");
-		rqst_msg.append(std::to_string(get_random_double()));
+		rqst_msg = std::string("value: X:");
+		rqst_msg.append(std::to_string(x));
+		rqst_msg.append(" Y:");
+		rqst_msg.append(std::to_string(y));
 		rqst_msg.append(" delay: ");
 		rqst_msg.append(std::to_string(delay));
 		boost::asio::write(sock, boost::asio::buffer(rqst_msg, rqst_msg.length()));
