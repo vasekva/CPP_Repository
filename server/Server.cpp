@@ -7,11 +7,12 @@
 const int max_length = 1024;
 
 class Session
-	: public std::enable_shared_from_this<Session>
+//	: public std::enable_shared_from_this<Session>
 {
 	public:
-		Session(tcp::socket sock)
-			: _sock(std::move(sock))
+		Session(tcp::socket sock, uint16_t uuid)
+			:	_sock(std::move(sock)),
+			  	_uuid(uuid)
 		{}
 
 		void start()
@@ -19,19 +20,26 @@ class Session
 			do_read();
 		}
 
+		uint16_t get_uuid() const
+		{
+			return (this->_uuid);
+		}
+
 	private:
 		void do_read()
 		{
-			auto self(shared_from_this()); // поддерживает жизнь сеанса благодаря умному указателю
+//			auto self(shared_from_this()); // поддерживает жизнь сеанса благодаря умному указателю
 
 			_sock.async_read_some(boost::asio::buffer(_data, max_length),
-			[this, self](boost::system::error_code error, std::size_t length)
+//			[this, self](boost::system::error_code error, std::size_t length)
+			[this](boost::system::error_code error, std::size_t length)
 			{
 				// получение сообщения
 				if (!error)
 				{
-					std::cout << "[Server] client " << _sock.remote_endpoint(error) <<
+					std::cout << "[Server] client #" << _uuid << " "  << _sock.remote_endpoint(error) <<
 						" has send a message: " << _data << std::endl;
+					//TODO: удалить, ибо отправлять это же сообщение обратно не нужно будет
 					do_write(length);
 				}
 				// проверка но отключение, либо ошибку
@@ -39,7 +47,7 @@ class Session
 				{
 					if (error == boost::asio::error::eof)
 					{
-						std::cout << "[Server] client " << _sock.remote_endpoint(error) <<
+						std::cout << "[Server] client #" << _uuid << " " << _sock.remote_endpoint(error) <<
 							" disconnected" << std::endl;
 					}
 					else
@@ -51,9 +59,10 @@ class Session
 
 		void do_write(std::size_t length)
 		{
-			auto self(shared_from_this()); // поддерживает жизнь сеанса благодаря умному указателю
+//			auto self(shared_from_this()); // поддерживает жизнь сеанса благодаря умному указателю
 			boost::asio::async_write(_sock, boost::asio::buffer(_data, length),
-			[this, self](boost::system::error_code error, std::size_t length)
+//			[this, self](boost::system::error_code error, std::size_t length)
+			[this](boost::system::error_code error, std::size_t length)
 			{
 				if (!error)
 					do_read();
@@ -63,12 +72,14 @@ class Session
 		}
 
 		tcp::socket _sock;
+		uint16_t _uuid;
 		enum { max_length = 1024 };
 		char _data[max_length];
 };
 
 Server::Server(boost::asio::io_context &context, std::uint16_t  port)
-	: _acceptor(context, tcp::endpoint(tcp::v4(), port))
+	: _acceptor(context, tcp::endpoint(tcp::v4(), port)),
+	_num_of_clients(0)
 {
 }
 
@@ -76,6 +87,8 @@ Server::~Server() {}
 
 void Server::async_accept()
 {
+
+	//TODO: сделать обработку ошибок в этом методе
 	std::cout << "[Server] is waiting a new connection..." << std::endl;
 	// ожидает входящие подключения,
 	// после этого создает новый объект сеанса и
@@ -85,11 +98,27 @@ void Server::async_accept()
 		[this](boost::system::error_code error, tcp::socket sock)
 		{
 			std::cout << "New connection has been accepted!" << std::endl;
-			std::cout << "New client is: " << sock.remote_endpoint(error) << std::endl;
+
+			std::string endpoint = boost::lexical_cast<std::string>(sock.remote_endpoint(error));
+			std::cout << "New client is: " << endpoint << std::endl;
+
+//			Session *session = new Session(std::move(sock));
 			if (!error)
-				std::make_shared<Session>(std::move(sock))->start();
+			{
+				_sessions.insert(std::make_pair(endpoint,
+					new Session(std::move(sock), _num_of_clients + 1)));
+				_sessions[endpoint]->start();
+				++_num_of_clients;
+//				std::shared_ptr<Session> ptr(session)->start();
+//				std::make_shared<Session>(std::move(sock))->start();
+			}
 			else
 				std::cerr << error.message() << "\n";
+
+			//TODO: обдумать ключевое значение в map, ибо endpoint очень редко может совпасть,
+			// следовательно каждое новое подключение добавляет новый элемент в map, даже
+			// если действующих соединений намного меньше
+			std::cout << "Number of connection is: " << _sessions.size() << std::endl;
 
 			async_accept();
 		});
