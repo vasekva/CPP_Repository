@@ -6,6 +6,7 @@
 
 const int max_length = 1024;
 
+#include <time.h>
 class Session
 //	: public std::enable_shared_from_this<Session>
 {
@@ -37,8 +38,13 @@ class Session
 				// получение сообщения
 				if (!error)
 				{
-					std::cout << "[Server] client #" << _uuid << " "  << _sock.remote_endpoint(error) <<
+					std::cout << "=================[Server]=================\n" << std::endl;
+					std::cout << get_curr_time() << std::endl;
+					std::cout << "client #" << this->get_uuid() << " "  << _sock.remote_endpoint(error) <<
 						" has send a message: " << _data << std::endl;
+					std::cout << "==========================================" << std::endl;
+
+
 					//TODO: удалить, ибо отправлять это же сообщение обратно не нужно будет
 					do_write(length);
 				}
@@ -47,7 +53,7 @@ class Session
 				{
 					if (error == boost::asio::error::eof)
 					{
-						std::cout << "[Server] client #" << _uuid << " " << _sock.remote_endpoint(error) <<
+						std::cout << "[Server] client #" << this->get_uuid() << " " << _sock.remote_endpoint(error) <<
 							" disconnected" << std::endl;
 					}
 					else
@@ -69,6 +75,31 @@ class Session
 				else
 					std::cerr << error.message() << "\n";
 			});
+		}
+
+		std::string get_curr_time()
+		{
+			std::string time_str;
+			char outstr[200];
+			time_t t;
+			struct tm *tmp;
+			const char* fmt = "%a, %d %b %y %T %z";
+
+			t = time(NULL);
+			tmp = gmtime(&t);
+			if (tmp == NULL)
+			{
+				perror("gmtime error");
+				exit(EXIT_FAILURE);
+			}
+
+			if (strftime(outstr, sizeof(outstr), fmt, tmp) == 0)
+			{
+				fprintf(stderr, "strftime returned 0");
+				exit(EXIT_FAILURE);
+			}
+			time_str = outstr;
+			return (time_str);
 		}
 
 		tcp::socket _sock;
@@ -118,7 +149,7 @@ void Server::async_accept()
 			//TODO: обдумать ключевое значение в map, ибо endpoint очень редко может совпасть,
 			// следовательно каждое новое подключение добавляет новый элемент в map, даже
 			// если действующих соединений намного меньше
-			std::cout << "Number of connection is: " << _sessions.size() << std::endl;
+			std::cout << "Number of connections is: " << _sessions.size() << std::endl;
 
 			async_accept();
 		});

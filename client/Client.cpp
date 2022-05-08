@@ -14,6 +14,7 @@ void Client::start_messaging(std::string &host, std::string &port)
 	tcp::resolver resolver_t(context);
 	connect(sock, resolver_t.resolve(host, port));
 
+	//TODO: отключение, если сервер закрылся
 	while (1)
 	{
 		std::cout << "[Client] Enter a message: ";
