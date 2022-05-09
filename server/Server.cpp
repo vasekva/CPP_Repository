@@ -79,28 +79,38 @@ class Session
 
 		std::string get_curr_time()
 		{
-			std::string time_str;
-			char outstr[200];
-			time_t t;
-			struct tm *tmp;
-			const char* fmt = "%a, %d %b %y %T %z";
-
-			t = time(NULL);
-			tmp = gmtime(&t);
-			if (tmp == NULL)
-			{
-				perror("gmtime error");
-				exit(EXIT_FAILURE);
-			}
-
-			if (strftime(outstr, sizeof(outstr), fmt, tmp) == 0)
-			{
-				fprintf(stderr, "strftime returned 0");
-				exit(EXIT_FAILURE);
-			}
-			time_str = outstr;
-			return (time_str);
+			std::time_t now = std::time(0);
+			std::tm* now_tm = std::gmtime(&now);
+			char buf[42];
+			std::strftime(buf, 42, "%X", now_tm);
+			return buf;
 		}
+
+		/***/
+//		std::string get_curr_time()
+//		{
+//			std::string time_str;
+//			char outstr[200];
+//			time_t t;
+//			struct tm *tmp;
+//			const char* fmt = "%a, %d %b %y %T %z";
+//
+//			t = time(NULL);
+//			tmp = gmtime(&t);
+//			if (tmp == NULL)
+//			{
+//				perror("gmtime error");
+//				exit(EXIT_FAILURE);
+//			}
+//
+//			if (strftime(outstr, sizeof(outstr), fmt, tmp) == 0)
+//			{
+//				fprintf(stderr, "strftime returned 0");
+//				exit(EXIT_FAILURE);
+//			}
+//			time_str = outstr;
+//			return (time_str);
+//		}
 
 		tcp::socket _sock;
 		uint16_t _uuid;
