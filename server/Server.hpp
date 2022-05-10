@@ -1,15 +1,15 @@
-//
-// Created by Josephine Beregond on 5/6/22.
-//
-
 #ifndef WEBSERV_T_EXERCISE_SERVER_HPP
 #define WEBSERV_T_EXERCISE_SERVER_HPP
 
 #include <boost/asio.hpp>
 
+/** FOR_WINDOWS
+ *
 #include <windows.h>
 #include <bcrypt.h>
 #pragma(lib, "bcrypt.lib")
+
+*/
 
 #include <boost/uuid/uuid.hpp>            // uuid class
 #include <boost/uuid/uuid_generators.hpp> // generators

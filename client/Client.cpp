@@ -1,25 +1,4 @@
-//
-// Created by Josephine Beregond on 5/6/22.
-//
-
 #include "Client.hpp"
-
-#include <ctime>
-#include <random>
-
-#include <boost/random/mersenne_twister.hpp>
-#include <boost/random/uniform_int_distribution.hpp>
-#include <boost/random/variate_generator.hpp>
-
-double Client::get_random_double()
-{
-	double value = 0.0;
-
-	std::default_random_engine defEngine(time(0));
-	std::uniform_real_distribution<double> dblDistro(-90.0, 90.0); // uniform_real_distribution for double
-	value = dblDistro(defEngine);
-	return (value);
-}
 
 int current_time_nanoseconds()
 {
@@ -28,31 +7,30 @@ int current_time_nanoseconds()
 	return tm.tv_nsec;
 }
 
-int Client::get_random_delay()
+double Client::get_random_value(std::string type) const
 {
-	int delay = 0;
+	double	d_val = 0.0;
+	int 	delay = 0;
 
 	boost::random::mt19937 defEngine(current_time_nanoseconds());
-	boost::random::uniform_int_distribution<> dblDistro(5,30);
-
-	delay =  dblDistro(defEngine);
-
-//	for(unsigned int i=0; i<dice_rolls; i++)
-//	{
-//		std::cout << six(rng) << std::endl;
-//	}
-//
-//	std::default_random_engine defEngine(time(0));
-//	std::uniform_int_distribution<int> dblDistro(5, 30); // uniform_int_distribution for int
-//	delay = dblDistro(defEngine);
-	std::cout << "Delay: " << delay << " sec\n";
-	return (delay);
+	if (type == "DOUBLE")
+	{
+		std::uniform_real_distribution<double> dblDistro(-90.0, 90.0); // uniform_real_distribution for double
+		d_val = dblDistro(defEngine);
+		return (d_val);
+	}
+	else
+	{
+		boost::random::uniform_int_distribution<int> dblDistro(5,30);
+		delay = dblDistro(defEngine);
+		std::cout << "Delay: " << delay << " sec" << std::endl;
+		return (delay);
+	}
 }
 
 void Client::start_messaging(std::string &host, std::string &port)
 {
 	io_context context;
-
 	tcp::socket sock(context);
 
 	// provides the ability to resolve a query to a list of endpoints
@@ -65,10 +43,10 @@ void Client::start_messaging(std::string &host, std::string &port)
 	int delay = 0;
 	while (1)
 	{
-		x = get_random_double();
-		delay = get_random_delay();
+		x = get_random_value("DOUBLE");
+		delay = get_random_value("INTEGER");
 		sleep(delay);
-		y = get_random_double();
+		y = get_random_value("DOUBLE");
 
 //		rqst_msg = std::string("X:");
 		rqst_msg = std::to_string(x);

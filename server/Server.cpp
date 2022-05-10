@@ -1,7 +1,3 @@
-//
-// Created by Josephine Beregond on 5/6/22.
-//
-
 #include "Server.hpp"
 
 const char *DB_NAME = "webserv_db";
@@ -107,32 +103,6 @@ class Session
 			return buf;
 		}
 
-		/***/
-//		std::string get_curr_time()
-//		{
-//			std::string time_str;
-//			char outstr[200];
-//			time_t t;
-//			struct tm *tmp;
-//			const char* fmt = "%a, %d %b %y %T %z";
-//
-//			t = time(NULL);
-//			tmp = gmtime(&t);
-//			if (tmp == NULL)
-//			{
-//				perror("gmtime error");
-//				exit(EXIT_FAILURE);
-//			}
-//
-//			if (strftime(outstr, sizeof(outstr), fmt, tmp) == 0)
-//			{
-//				fprintf(stderr, "strftime returned 0");
-//				exit(EXIT_FAILURE);
-//			}
-//			time_str = outstr;
-//			return (time_str);
-//		}
-
 		std::string make_db_message(std::string uuid, std::string time, std::string msg)
 		{
 			int space_ind = 0;
@@ -222,10 +192,7 @@ void Server::async_accept()
 			else
 				std::cerr << error.message() << "\n";
 
-			//TODO: обдумать ключевое значение в map, ибо endpoint очень редко может совпасть,
-			// следовательно каждое новое подключение добавляет новый элемент в map, даже
-			// если действующих соединений намного меньше
-			std::cout << "Number of connections is: " << _sessions.size() << std::endl;
+			std::cout << "Number of connections for all time: " << _sessions.size() << std::endl;
 
 			async_accept();
 		});
