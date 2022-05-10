@@ -6,12 +6,15 @@ message(STATUS "start running cmake...")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 set(CMAKE_CXX_STANDARD 17)
 
-
 #FOR Windows
 #set(CMAKE_EXE_LINKER_FLAGS -static)
+if (WIN32)
 set(Boost_INCLUDE_DIR H:/Programs/MinGW/include/)
 set(Boost_LIBRARY_DIR H:/Programs/MinGW/lib/)
+#add_definitions(-DBOOST_ALL_DYN_LINK -DBOOST_ALL_NO_LIB)
+endif()
 #find_package(Boost 1.77.0 COMPONENTS system filesystem REQUIRED) <-- DELETE
+
 
 #FOR MAC_OS
 #set(Boost_INCLUDE_DIR /goinfre/jberegon/.brew/include/)
@@ -47,5 +50,5 @@ endif()
 
 #FOR WINDOWS
 if (MINGW)
-    target_link_libraries(Webserv_t_exercise ws2_32 wsock32)
+    target_link_libraries(Webserv_t_exercise ws2_32 wsock32 -lbcrypt)
 endif()

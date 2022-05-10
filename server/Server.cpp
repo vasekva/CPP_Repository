@@ -6,7 +6,6 @@
 
 const int max_length = 1024;
 
-#include <time.h>
 class Session
 //	: public std::enable_shared_from_this<Session>
 {
@@ -40,6 +39,14 @@ class Session
 				{
 					std::cout << "=================[Server]=================\n" << std::endl;
 					std::cout << get_curr_time() << std::endl;
+
+//					boost::uuids::uuid uuid = boost::uuids::random_generator()();
+//    				std::cout << uuid << std::endl;
+
+					boost::uuids::random_generator generator;
+					boost::uuids::uuid uuid1 = generator();
+					std::cout << uuid1 << std::endl;
+
 					std::cout << "client #" << this->get_uuid() << " "  << _sock.remote_endpoint(error) <<
 						" has send a message: " << _data << std::endl;
 					std::cout << "==========================================" << std::endl;

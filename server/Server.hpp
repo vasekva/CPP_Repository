@@ -5,9 +5,19 @@
 #ifndef WEBSERV_T_EXERCISE_SERVER_HPP
 #define WEBSERV_T_EXERCISE_SERVER_HPP
 
-#include <boost/lexical_cast.hpp>
 #include <boost/asio.hpp>
+
+#include <windows.h>
+#include <bcrypt.h>
+#pragma(lib, "bcrypt.lib")
+
+#include <boost/uuid/uuid.hpp>            // uuid class
+#include <boost/uuid/uuid_generators.hpp> // generators
+#include <boost/uuid/uuid_io.hpp>     	  // streaming operators etc.
+#include <boost/lexical_cast.hpp>
+
 #include <iostream>
+#include <time.h>
 #include <memory>
 #include <map>
 
