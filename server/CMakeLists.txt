@@ -39,6 +39,7 @@ endif()
 
 set(SOURCE_FILES
         main.cpp
+        ../sqlite/sqlite3.c
         Server.cpp
     )
 
@@ -49,6 +50,6 @@ if (Boost_FOUND)
 endif()
 
 #FOR WINDOWS
-if (MINGW)
+if (WIN32)
     target_link_libraries(Webserv_t_exercise ws2_32 wsock32 -lbcrypt)
 endif()

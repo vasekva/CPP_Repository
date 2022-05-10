@@ -21,6 +21,8 @@
 #include <memory>
 #include <map>
 
+#include "../sqlite/sqlite3.h"
+
 using namespace boost::asio;
 using boost::asio::ip::tcp;
 
@@ -29,15 +31,16 @@ class Session;
 class Server
 {
 	private:
-		uint16_t _num_of_clients;
 		tcp::acceptor _acceptor;
 		std::map<std::string, Session *> _sessions;
+		sqlite3	*_db;
+		char *_db_error;
+		std::string make_db_message(std::string uuid, std::string time, std::string msg);
 	public:
 		Server(boost::asio::io_context &context, std::uint16_t  port);
 		~Server();
 
 		void async_accept();
-//		void make_accept(io_context &context, int port);
 };
 
 

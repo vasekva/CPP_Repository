@@ -7,6 +7,7 @@
 using namespace boost::asio;
 using boost::asio::ip::tcp;
 
+//TODO: сделать слияние строки создания таблицы в базе данных от константы
 int main(int argc, char **argv)
 {
 	std::cout << "Hello, World!" << std::endl;

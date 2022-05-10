@@ -45,7 +45,7 @@ int Client::get_random_delay()
 //	std::default_random_engine defEngine(time(0));
 //	std::uniform_int_distribution<int> dblDistro(5, 30); // uniform_int_distribution for int
 //	delay = dblDistro(defEngine);
-	std::cout << "Delay: " << delay << " sec";
+	std::cout << "Delay: " << delay << " sec\n";
 	return (delay);
 }
 
@@ -59,7 +59,6 @@ void Client::start_messaging(std::string &host, std::string &port)
 	tcp::resolver resolver_t(context);
 	connect(sock, resolver_t.resolve(host, port));
 
-	//TODO: отключение, если сервер закрылся
 	std::string rqst_msg;
 	double x = 0.0;
 	double y = 0.0;
@@ -71,13 +70,14 @@ void Client::start_messaging(std::string &host, std::string &port)
 		sleep(delay);
 		y = get_random_double();
 
-		rqst_msg = std::string("value: X:");
-		rqst_msg.append(std::to_string(x));
-		rqst_msg.append(" Y:");
+//		rqst_msg = std::string("X:");
+		rqst_msg = std::to_string(x);
+		rqst_msg.append(" ");
 		rqst_msg.append(std::to_string(y));
-		rqst_msg.append(" delay: ");
-		rqst_msg.append(std::to_string(delay));
+//		rqst_msg.append(" delay: ");
+//		rqst_msg.append(std::to_string(delay));
 		boost::asio::write(sock, boost::asio::buffer(rqst_msg, rqst_msg.length()));
+//		rqst_msg.clear();
 
 //		std::cout << "[Client] Enter a message: ";
 //		char request[max_length];
@@ -86,7 +86,7 @@ void Client::start_messaging(std::string &host, std::string &port)
 //		boost::asio::write(sock, boost::asio::buffer(request, request_length));
 
 		char reply[max_length];
-		size_t reply_length = boost::asio::read(sock, boost::asio::buffer(reply, rqst_msg.length()));
+		size_t reply_length = boost::asio::read(sock, boost::asio::buffer(reply, 11));
 		if (reply[reply_length - 1] != '\n')
 			std::cout << "\n";
 		std::cout << "[Client] Reply message is: ";

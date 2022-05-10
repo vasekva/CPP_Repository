@@ -51,6 +51,8 @@ static bool is_port_valid(std::string &port)
 	return (ret);
 }
 
+//TODO: отключение, если сервер закрылся
+//TODO: отправлять сообщение только если оно не пустое
 int main(int argc, char **argv)
 {
 	std::string host;
