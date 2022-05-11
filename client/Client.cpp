@@ -1,10 +1,19 @@
 #include "Client.hpp"
 
-int current_time_nanoseconds()
+static int current_time_nanoseconds()
 {
 	struct timespec tm;
 	clock_gettime(CLOCK_REALTIME, &tm);
-	return tm.tv_nsec;
+	return (tm.tv_nsec);
+}
+
+std::string Client::get_curr_time() const
+{
+	std::time_t now = std::time(0);
+	std::tm* now_tm = std::gmtime(&now);
+	char buf[42];
+	std::strftime(buf, 42, "%X", now_tm);
+	return (buf);
 }
 
 double Client::get_random_value(std::string type) const
@@ -38,22 +47,22 @@ void Client::start_messaging(std::string &host, std::string &port)
 	connect(sock, resolver_t.resolve(host, port));
 
 	std::string rqst_msg;
-	double x = 0.0;
-	double y = 0.0;
-	int delay = 0;
+	std::string X;
+	std::string Y;
 	while (1)
 	{
-		x = get_random_value("DOUBLE");
-		delay = get_random_value("INTEGER");
-		sleep(delay);
-		y = get_random_value("DOUBLE");
+		X = std::to_string(get_random_value("DOUBLE"));
+		X.resize(X.length() - 3); // изменение точности double с 6 до 4 знаков
+//		sleep((int)get_random_value("INTEGER"));
+		sleep(3);
+		Y = std::to_string(get_random_value("DOUBLE"));
+		Y.resize(Y.length() - 3); // изменение точности double с 6 до 4 знаков
 
-//		rqst_msg = std::string("X:");
-		rqst_msg = std::to_string(x);
+		rqst_msg = X; // 23.1352
 		rqst_msg.append(" ");
-		rqst_msg.append(std::to_string(y));
-//		rqst_msg.append(" delay: ");
-//		rqst_msg.append(std::to_string(delay));
+		rqst_msg.append(Y); // -52.1234
+		rqst_msg.append(" ");
+		rqst_msg.append(get_curr_time()); // 15:23:43
 		boost::asio::write(sock, boost::asio::buffer(rqst_msg, rqst_msg.length()));
 //		rqst_msg.clear();
 

@@ -46,11 +46,10 @@ class Session
 				if (!error)
 				{
 					std::cout << "=================[Server]=================\n" << std::endl;
-					_time = get_curr_time();
 
 					std::cout << "client " << this->get_uuid() << " has send a message: " << _data << std::endl;
-					std::string msg = make_db_message(this->get_uuid(), _time, _data);
-//					std::cout << "Msg for DB: " << msg << std::endl;
+					std::string msg = make_db_message(this->get_uuid(), _data);
+					std::cout << "Msg for DB: " << msg << std::endl;
 
 					if (sqlite3_exec(_db, msg.c_str(), 0, 0, &_error))
 					{
@@ -94,26 +93,23 @@ class Session
 			});
 		}
 
-		std::string get_curr_time()
+		std::string make_db_message(std::string uuid, std::string msg)
 		{
-			std::time_t now = std::time(0);
-			std::tm* now_tm = std::gmtime(&now);
-			char buf[42];
-			std::strftime(buf, 42, "%X", now_tm);
-			return buf;
-		}
-
-		std::string make_db_message(std::string uuid, std::string time, std::string msg)
-		{
+			std::string time;
 			int space_ind = 0;
+
+			space_ind = msg.find_last_of(" ");
+			time = &msg[space_ind + 1];
+			msg.erase(space_ind, time.length());
 
 			space_ind = msg.find_last_of(" ");
 			std::string Y = &msg[space_ind + 1];
 			msg.erase(space_ind, Y.length());
+
 			std::string X = msg;
 			msg.clear();
 
-			//EXAMPLE: "INSERT INTO Clients VALUES('fsdfsd-wqerwe-1234-twerw', '10:59:46', 'hello');";
+			//EXAMPLE: "INSERT INTO Clients VALUES('fsdfsd-wqerwe-1234-twerw', '10:59:46', '-23.5671', '42.1236');";
 			std::string ret_msg = "INSERT INTO ";
 			ret_msg.append(TABLE_NAME);
 			ret_msg.append(" VALUES('");
@@ -131,7 +127,6 @@ class Session
 
 		tcp::socket _sock;
 		std::string _uuid;
-		std::string _time;
 		sqlite3		*_db;
 		char		*_error;
 		enum { max_length = 1024 };

@@ -35,7 +35,6 @@ class Server
 		std::map<std::string, Session *> _sessions;
 		sqlite3	*_db;
 		char *_db_error;
-		std::string make_db_message(std::string uuid, std::string time, std::string msg);
 	public:
 		Server(boost::asio::io_context &context, std::uint16_t  port);
 		~Server();
