@@ -7,6 +7,10 @@
 
 ![CMAKE](./markdown_imgs/cmake.png)
 
+### Дополнение для Windows: в файле server/main_header.hpp уберите комментарий этих строк:
+
+![WIN](./markdown_imgs/win_help.png)
+
 #### 2) Добавьте программные аргументы для клиента(айпи адрес и порт подключения) и сервера(порт прослушивания)
 
 ![ARG_0](./markdown_imgs/arg_1.png) 
