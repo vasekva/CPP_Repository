@@ -12,8 +12,8 @@ const std::string TABLE_NAME = "Clients";
 const std::string CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + "("
 								 "UUID	TEXT NOT NULL, "
 								 "Message_time	TEXT NOT NULL, "
-								 "X	TEXT NOT NULL, "
-								 "Y	TEXT NOT NULL"
+								 "X	REAL NOT NULL, "
+								 "Y	REAL NOT NULL"
 								 ");";
 //							 "PRIMARY KEY(\"UUID\"));";
 

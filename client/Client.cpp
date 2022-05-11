@@ -37,24 +37,18 @@ double Client::get_random_value(std::string type) const
 	}
 }
 
-void Client::start_messaging(std::string &host, std::string &port)
+void Client::loop_messaging(tcp::socket sock)
 {
-	io_context context;
-	tcp::socket sock(context);
-
-	// provides the ability to resolve a query to a list of endpoints
-	tcp::resolver resolver_t(context);
-	connect(sock, resolver_t.resolve(host, port));
-
 	std::string rqst_msg;
 	std::string X;
 	std::string Y;
+
 	while (1)
 	{
 		X = std::to_string(get_random_value("DOUBLE"));
 		X.resize(X.length() - 3); // изменение точности double с 6 до 4 знаков
 		sleep((int)get_random_value("INTEGER"));
-//		sleep(3);
+//		sleep(1);
 		Y = std::to_string(get_random_value("DOUBLE"));
 		Y.resize(Y.length() - 3); // изменение точности double с 6 до 4 знаков
 
@@ -79,5 +73,41 @@ void Client::start_messaging(std::string &host, std::string &port)
 		std::cout << "[Client] Reply message is: ";
 		std::cout.write(reply, reply_length);
 		std::cout << "\n";
+	}
+}
+
+void Client::show_statistic(tcp::socket sock)
+{
+	// Получить список UUID
+	// Сделать цикл по UUID
+		// Получение последнего сообщения связанного с UUID
+		// 1) Выборка и суммированние всех X значений данного пользователя,
+		// где время в промежутке (lst.msg time - 1min)
+		// 2) Выборка и суммированние всех Y значений данного пользователя,
+		// где время в промежутке (lst.msg time - 1min)
+		// 3) Выборка и суммированние всех X значений данного пользователя,
+		// где время в промежутке (lst.msg time - 5min)
+		// 4) Выборка и суммированние всех Y значений данного пользователя,
+		// где время в промежутке (lst.msg time - 5min)
+}
+
+void Client::start_messaging(std::string &host, std::string &port, std::string &flag)
+{
+	io_context context;
+	tcp::socket sock(context);
+
+	// provides the ability to resolve a query to a list of endpoints
+	tcp::resolver resolver_t(context);
+	connect(sock, resolver_t.resolve(host, port));
+
+	if (flag.empty())
+	{
+		std::cout << "LOOP MSG" << std::endl;
+		loop_messaging(std::move(sock));
+	}
+	else
+	{
+		std::cout << "OOPS" << std::endl;
+		show_statistic(std::move(sock));
 	}
 }

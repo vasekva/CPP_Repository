@@ -10,12 +10,13 @@ class Session;
 class Server
 {
 	private:
-		tcp::acceptor _acceptor;
 		std::map<std::string, Session *> _sessions;
+		tcp::acceptor	_acceptor;
+		std::string		_cmd;
+		char	*_db_error;
 		sqlite3	*_db;
-		char *_db_error;
 	public:
-		Server(boost::asio::io_context &context, std::uint16_t  port);
+		Server(boost::asio::io_context &context, std::uint16_t port);
 		~Server();
 
 		void async_accept();

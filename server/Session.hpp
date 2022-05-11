@@ -11,6 +11,7 @@ class Session
 		~Session(void);
 		void start(void);
 	private:
+		std::string	get_stats();
 		std::string	get_uuid(void) const;
 		void 		do_read(void);
 		void 		do_write(std::string msg);
@@ -19,7 +20,7 @@ class Session
 		tcp::socket _sock;
 		std::string _uuid;
 		sqlite3		*_db;
-		char		*_error;
+		char		*_db_error;
 		enum { max_length = 1024 };
 		char _data[max_length];
 };

@@ -4,12 +4,12 @@ Session::Session(tcp::socket sock, std::string uuid, sqlite3 *db_ptr, char *erro
 		:	_sock(std::move(sock)),
 			 _uuid(uuid),
 			 _db(db_ptr),
-			 _error(error)
+			 _db_error(error)
 {}
 
 Session::~Session(void) {}
 
-void Session::start(void)
+void Session::start()
 {
 	do_read();
 }
@@ -34,17 +34,20 @@ void Session::do_read(void)
 
 			std::cout << "client " << this->get_uuid() << " has send a message: " << _data << std::endl;
 			std::string msg = make_db_message(this->get_uuid(), _data);
-			std::cout << "Msg for DB: " << msg << std::endl;
-
-			if (sqlite3_exec(_db, msg.c_str(), 0, 0, &_error))
-			{
-			  fprintf(stderr, "SQL Error: %s\n", _error);
-			  sqlite3_free(_error);
-			}
-			else
-			  printf("Data Inserting has done correct!\n");
+//			if (!msg.empty())
+//			{
+				std::cout << "Msg for DB: " << msg << std::endl;
+				if (sqlite3_exec(_db, msg.c_str(), 0, 0, &_db_error))
+				{
+					fprintf(stderr, "SQL Error: %s\n", _db_error);
+					sqlite3_free(_db_error);
+				}
+				else
+					printf("Data Inserting has done correct!\n");
+//			}
+//			else
+//				std::cout << "Incorrect message format from a client!" << std::endl;
 			std::cout << "==========================================" << std::endl;
-
 			//	TODO: удалить, ибо отправлять это же сообщение обратно не нужно будет
 			do_write("Try again!\n");
 		}
@@ -77,11 +80,72 @@ void Session::do_write(std::string msg)
 	});
 }
 
+std::string Session::get_stats()
+{
+	std::cout << "OH YEAH STATS" << std::endl;
+}
+
+//
+//static bool check_spaces(std::string &msg)
+//{
+//	int spaces = 0;
+//
+//	for (int i = 0; i < msg.length(); i++)
+//	{
+//		if (msg[i] == ' ')
+//			spaces++;
+//	}
+//	return (spaces == 2);
+//}
+//
+//static bool has_valid_symbols(std::string &msg)
+//{
+//	bool ret_val = true;
+//	int	dot_cnt = 0;
+//	int colon_cnt = 0;
+//
+//	for (int i = 0; i < msg.length(); i++)
+//	{
+//		if (msg[i] != '-' && msg[i] != '.'
+//			&& !std::isdigit(msg[i]) && msg[i] != ':')
+//		{
+//			ret_val = false;
+//			break;
+//		}
+//		if (msg[i] == '.')
+//		{
+//			if (dot_cnt == 2)
+//			{
+//				ret_val = false;
+//				break;
+//			}
+//			dot_cnt++;
+//		}
+//		if (msg[i] == ':')
+//		{
+//			if (colon_cnt == 2)
+//			{
+//				ret_val = false;
+//				break;
+//			}
+//			colon_cnt++;
+//		}
+//	}
+//	return (ret_val);
+//}
+//
+//bool is_valid_msg(std::string msg)
+//{
+//	return (check_spaces(msg));
+//}
+
 std::string Session::make_db_message(std::string uuid, std::string msg)
 {
 	std::string time;
 	int space_ind = 0;
 
+//	if (!is_valid_msg(msg))
+//		return ("");
 	space_ind = msg.find_last_of(" ");
 	time = &msg[space_ind + 1];
 	msg.erase(space_ind, time.length());
