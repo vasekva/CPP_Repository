@@ -16,7 +16,7 @@ class Session
 		void 		do_read(void);
 		void 		do_write(std::string msg);
 		std::string make_insert_msg(std::string uuid, std::string msg);
-		void		make_sql_exec(void);
+		bool		make_sql_exec(void);
 
 		tcp::socket _sock;
 		std::string _uuid;

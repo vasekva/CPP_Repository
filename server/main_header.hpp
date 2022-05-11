@@ -26,4 +26,10 @@
 using namespace boost::asio;
 using boost::asio::ip::tcp;
 
+void clear_eof(std::string &msg);
+bool is_statistic(std::string &msg);
+bool check_spec_symbols(std::string &msg);
+bool is_valid_symbols(std::string &msg);
+bool is_valid_msg(std::string &msg);
+
 #endif

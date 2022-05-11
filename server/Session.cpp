@@ -26,11 +26,20 @@ std::string Session::get_uuid(void) const
  *
  * 3) НЕ СДЕЛАНО - вывод статистики
  * */
-void Session::make_sql_exec(void)
+bool Session::make_sql_exec(void)
 {
-	if (std::string(_data) != "--statistic\n")
+	std::string data = _data;
+	clear_eof(data);
+
+	if (data.find("--statistic") == std::string::npos)
 	{
-		std::string msg = make_insert_msg(this->get_uuid(), _data);
+		std::string msg = make_insert_msg(this->get_uuid(), data);
+		if (msg.empty())
+		{
+			std::cout << "INCORRECT MESSAGE FROM THE CLIENT!" << std::endl;
+			return (false);
+		}
+
 		std::cout << "Msg for DB: " << msg << std::endl;
 		if (sqlite3_exec(_db, msg.c_str(), 0, 0, &_db_error))
 		{
@@ -44,6 +53,8 @@ void Session::make_sql_exec(void)
 	}
 	else
 	{
+		if (!is_statistic(data))
+			return (false);
 		//TODO:: get_stats();
 		std::cout << "    Getting statistic from the server..." << std::endl;
 		std::cout << " OOPS, this functionality is not ready yet" << std::endl;
@@ -51,6 +62,7 @@ void Session::make_sql_exec(void)
 		std::cout << "==========================================" << std::endl;
 		do_read();
 	}
+	return (true);
 }
 
 void Session::do_read(void)
@@ -64,12 +76,15 @@ void Session::do_read(void)
 				std::cout << "=================[Server]=================\n" << std::endl;
 				std::cout << "client " << this->get_uuid() << " has send a message: " << _data << std::endl;
 
-				if (std::string(_data).empty())
-				{
-					std::cout << "Message from the client is empty!!" << std::endl;
-				}
 				/** Выполнение взаимодействия с БД */
-				make_sql_exec();
+				if (std::string(_data).empty() || !make_sql_exec())
+				{
+					if (std::string(_data).empty())
+						std::cout << "Message from the client is empty!!" << std::endl;
+					_sock.shutdown(boost::asio::ip::tcp::socket::shutdown_both, error);
+					_sock.close();
+					return ;
+				}
 			}
 			/** проверка на отключение, либо ошибку */
 			else
@@ -80,7 +95,11 @@ void Session::do_read(void)
 							" disconnected" << std::endl;
 				}
 				else
+				{
 					std::cerr << error.message() << "\n";
+					_sock.shutdown(boost::asio::ip::tcp::socket::shutdown_both, error);
+					_sock.close();
+				}
 			}
 		});
 	/** обнуление буфера принятого сообщения */
@@ -114,8 +133,9 @@ std::string Session::get_stats()
 	// где время в промежутке (lst.msg time - 5min)
 	// 4) Выборка и суммированние всех Y значений данного пользователя,
 	// где время в промежутке (lst.msg time - 5min)
-}
 
+	return ("");
+}
 
 /**
  *  Конструирует INSERT команду для вставки данных в бд
@@ -129,11 +149,10 @@ std::string Session::make_insert_msg(std::string uuid, std::string msg)
 	std::string Y;
 	std::string X;
 
-	// TODO: сделать проверку сообщения от клиента
-//	if (!is_valid_msg(msg))
-//		return ("");
-	if (msg[msg.length() - 1] == '\n')
-		msg.erase(msg.length() - 1, 1);
+	/** CHECK SYNTAX */
+	if (!is_valid_msg(msg))
+		return ("");
+
 	/** Message_time */
 	space_ind = msg.find_last_of(" ");
 	time = &msg[space_ind + 1];
