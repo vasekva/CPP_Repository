@@ -19,142 +19,131 @@ std::string Session::get_uuid(void) const
 	return (this->_uuid);
 }
 
+/**
+ * Главная функция выполнения взаимодействия с БД
+ * 1) make_insert_msg конструирует сообщение для вставки данных в бд
+ * 2) полученная команда подается в sqlite3_exec()
+ *
+ * 3) НЕ СДЕЛАНО - вывод статистики
+ * */
+void Session::make_sql_exec(void)
+{
+	if (std::string(_data) != "--statistic\n")
+	{
+		std::string msg = make_insert_msg(this->get_uuid(), _data);
+		std::cout << "Msg for DB: " << msg << std::endl;
+		if (sqlite3_exec(_db, msg.c_str(), 0, 0, &_db_error))
+		{
+			fprintf(stderr, "SQL Error: %s\n", _db_error);
+			sqlite3_free(_db_error);
+		}
+		else
+			printf("Data Inserting has done correct!\n");
+		std::cout << "==========================================" << std::endl;
+		do_write("Try again!\n");
+	}
+	else
+	{
+		//TODO:: get_stats();
+		std::cout << "    Getting statistic from the server..." << std::endl;
+		std::cout << " OOPS, this functionality is not ready yet" << std::endl;
+		std::cout << "                 Try again                " << std::endl;
+		std::cout << "==========================================" << std::endl;
+		do_read();
+	}
+}
+
 void Session::do_read(void)
 {
-	// auto self(shared_from_this()); // поддерживает жизнь сеанса благодаря умному указателю
-
 	_sock.async_read_some(boost::asio::buffer(_data, max_length),
-	// [this, self](boost::system::error_code error, std::size_t length)
-	[this](boost::system::error_code error, std::size_t length)
-	{
-		// получение сообщения
-		if (!error)
+		[this](boost::system::error_code error, std::size_t length)
 		{
-			std::cout << "=================[Server]=================\n" << std::endl;
+			/** Выполнение обработки полученного сообщения */
+			if (!error)
+			{
+				std::cout << "=================[Server]=================\n" << std::endl;
+				std::cout << "client " << this->get_uuid() << " has send a message: " << _data << std::endl;
 
-			std::cout << "client " << this->get_uuid() << " has send a message: " << _data << std::endl;
-			std::string msg = make_db_message(this->get_uuid(), _data);
-//			if (!msg.empty())
-//			{
-				std::cout << "Msg for DB: " << msg << std::endl;
-				if (sqlite3_exec(_db, msg.c_str(), 0, 0, &_db_error))
+				if (std::string(_data).empty())
 				{
-					fprintf(stderr, "SQL Error: %s\n", _db_error);
-					sqlite3_free(_db_error);
+					std::cout << "Message from the client is empty!!" << std::endl;
+				}
+				/** Выполнение взаимодействия с БД */
+				make_sql_exec();
+			}
+			/** проверка на отключение, либо ошибку */
+			else
+			{
+				if (error == boost::asio::error::eof)
+				{
+					std::cout << "[Server] client #" << this->get_uuid() << " " << _sock.remote_endpoint(error) <<
+							" disconnected" << std::endl;
 				}
 				else
-					printf("Data Inserting has done correct!\n");
-//			}
-//			else
-//				std::cout << "Incorrect message format from a client!" << std::endl;
-			std::cout << "==========================================" << std::endl;
-			//	TODO: удалить, ибо отправлять это же сообщение обратно не нужно будет
-			do_write("Try again!\n");
-		}
-		// проверка но отключение, либо ошибку
-		else
-		{
-			if (error == boost::asio::error::eof)
-			{
-				std::cout << "[Server] client #" << this->get_uuid() << " " << _sock.remote_endpoint(error) <<
-						" disconnected" << std::endl;
+					std::cerr << error.message() << "\n";
 			}
-			else
-				std::cerr << error.message() << "\n";
-		}
-	});
+		});
+	/** обнуление буфера принятого сообщения */
 	memset(_data, 0, max_length);
 }
 
 void Session::do_write(std::string msg)
 {
-	//	auto self(shared_from_this()); // поддерживает жизнь сеанса благодаря умному указателю
 	boost::asio::async_write(_sock, boost::asio::buffer(msg, msg.length()),
-	//	[this, self](boost::system::error_code error, std::size_t length)
-	[this](boost::system::error_code error, std::size_t length)
-	{
-		if (!error)
-			do_read();
-		else
-			std::cerr << error.message() << "\n";
-	});
+		[this](boost::system::error_code error, std::size_t length)
+		{
+			if (!error)
+				do_read();
+			else
+				std::cerr << error.message() << "\n";
+		});
 }
 
+// TODO: метод для реализации функционала статистики
 std::string Session::get_stats()
 {
 	std::cout << "OH YEAH STATS" << std::endl;
+	// Получить список UUID
+	// Сделать цикл по UUID
+	// Получение последнего сообщения связанного с UUID
+	// 1) Выборка и суммированние всех X значений данного пользователя,
+	// где время в промежутке (lst.msg time - 1min)
+	// 2) Выборка и суммированние всех Y значений данного пользователя,
+	// где время в промежутке (lst.msg time - 1min)
+	// 3) Выборка и суммированние всех X значений данного пользователя,
+	// где время в промежутке (lst.msg time - 5min)
+	// 4) Выборка и суммированние всех Y значений данного пользователя,
+	// где время в промежутке (lst.msg time - 5min)
 }
 
-//
-//static bool check_spaces(std::string &msg)
-//{
-//	int spaces = 0;
-//
-//	for (int i = 0; i < msg.length(); i++)
-//	{
-//		if (msg[i] == ' ')
-//			spaces++;
-//	}
-//	return (spaces == 2);
-//}
-//
-//static bool has_valid_symbols(std::string &msg)
-//{
-//	bool ret_val = true;
-//	int	dot_cnt = 0;
-//	int colon_cnt = 0;
-//
-//	for (int i = 0; i < msg.length(); i++)
-//	{
-//		if (msg[i] != '-' && msg[i] != '.'
-//			&& !std::isdigit(msg[i]) && msg[i] != ':')
-//		{
-//			ret_val = false;
-//			break;
-//		}
-//		if (msg[i] == '.')
-//		{
-//			if (dot_cnt == 2)
-//			{
-//				ret_val = false;
-//				break;
-//			}
-//			dot_cnt++;
-//		}
-//		if (msg[i] == ':')
-//		{
-//			if (colon_cnt == 2)
-//			{
-//				ret_val = false;
-//				break;
-//			}
-//			colon_cnt++;
-//		}
-//	}
-//	return (ret_val);
-//}
-//
-//bool is_valid_msg(std::string msg)
-//{
-//	return (check_spaces(msg));
-//}
 
-std::string Session::make_db_message(std::string uuid, std::string msg)
+/**
+ *  Конструирует INSERT команду для вставки данных в бд
+ *  путем вытаскивания из 'msg' данных для отдельных столбцов,
+ *  связывая полученные отдельные элементы в единое сообщение
+ */
+std::string Session::make_insert_msg(std::string uuid, std::string msg)
 {
-	std::string time;
 	int space_ind = 0;
+	std::string time;
+	std::string Y;
+	std::string X;
 
+	// TODO: сделать проверку сообщения от клиента
 //	if (!is_valid_msg(msg))
 //		return ("");
+	if (msg[msg.length() - 1] == '\n')
+		msg.erase(msg.length() - 1, 1);
+	/** Message_time */
 	space_ind = msg.find_last_of(" ");
 	time = &msg[space_ind + 1];
-	msg.erase(space_ind, time.length());
-
+	msg.erase(space_ind, time.length() + 1); // "-85.2232 27.1889 05:04:14" --> "-85.2232 27.1889"
+	/** Y */
 	space_ind = msg.find_last_of(" ");
-	std::string Y = &msg[space_ind + 1];
-	msg.erase(space_ind, Y.length());
-
-	std::string X = msg;
+	Y = &msg[space_ind + 1];
+	msg.erase(space_ind, Y.length() + 1); // "-85.2232 27.1889" --> "-85.2232"
+	/** X */
+	X = msg;
 	msg.clear();
 
 	//EXAMPLE: "INSERT INTO Clients VALUES('fsdfsd-wqerwe-1234-twerw', '10:59:46', '-23.5671', '42.1236');";

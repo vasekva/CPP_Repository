@@ -9,14 +9,18 @@ set(CMAKE_CXX_STANDARD 17)
 if (WIN32)
     set(Boost_INCLUDE_DIR H:/Programs/MinGW/include/)
     set(Boost_LIBRARY_DIR H:/Programs/MinGW/lib/)
+
     #add_definitions(-DBOOST_ALL_DYN_LINK -DBOOST_ALL_NO_LIB)
 elseif(APPLE)
     set(Boost_INCLUDE_DIR /goinfre/jberegon/.brew/include/)
     set(Boost_LIBRARY_DIR /goinfre/jberegon/.brew/lib/)
+#    set(Protobuf_INCLUDE_DIR /goinfre/jberegon/.brew/opt/protobuf/include)
+#    set(Protobuf_LIBRARY_DIR /goinfre/jberegon/.brew/opt/protobuf/lib)
     include_directories(${Boost_INCLUDE_DIR})
 endif()
 
 find_package(Boost COMPONENTS system filesystem REQUIRED)
+#find_package(Protobuf REQUIRED)
 
 if (NOT Boost_FOUND)
     message(FATAL_ERROR "Could not find boost!")
@@ -40,3 +44,27 @@ else()
         target_link_libraries(Webserv_t_exercise ws2_32 wsock32 -lbcrypt)
     endif()
 endif()
+
+#if (NOT Protobuf_FOUND)
+#    message(FATAL_ERROR "Could not find boost!")
+#else()
+#    message(STATUS "Protobuf_INCLUDE_DIRS: ${Protobuf_INCLUDE_DIRS}")
+#    message(STATUS "Protobuf_LIBRARIES: ${Protobuf_LIBRARIES}")
+#    message(STATUS "Protobuf_VERSION: ${Protobuf_VERSION}")
+#
+#    #include_directories(${CMAKE_CURRENT_BINARY_DIR})
+#    include_directories(${Protobuf_INCLUDE_DIR})
+#
+#    protobuf_generate_cpp(
+#            PROTO_SRCS PROTO_HDRS
+#            person.proto
+#            address.proto
+#    )
+#
+#    set(SOURCE_FILES
+#            main.cpp ${PROTO_SRCS} ${PROTO_HDRS}
+#            )
+#
+#    add_executable(untitled1 ${SOURCE_FILES})
+#    target_link_libraries(untitled1 ${Protobuf_LIBRARIES})
+#endif()

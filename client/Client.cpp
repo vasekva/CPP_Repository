@@ -30,13 +30,22 @@ double Client::get_random_value(std::string type) const
 	}
 	else
 	{
-		boost::random::uniform_int_distribution<int> dblDistro(5,30);
+		boost::random::uniform_int_distribution<int> dblDistro(5, 30);
 		delay = dblDistro(defEngine);
 		std::cout << "Delay: " << delay << " sec" << std::endl;
 		return (delay);
 	}
 }
 
+/**
+ *  Метод в 'бесконечном' цикле сначала получает 3 значения:
+ *  1) double в диапазоне от -90 до 90 от get_random_value(DOUBLE)
+ *  2) значение задержки в диапазоне от 5 до 30 от get_random_value(INTEGER)
+ *  3) double в диапазоне от -90 до 90 от get_random_value(DOUBLE)
+ *  После конструируется сообщение для отправки серверу из значений
+ *  пунктов 1, 3 и строки из get_curr_time(), после чего сообщение
+ *  отсылается серверу и клиент ожидает ответного сообщения
+ */
 void Client::loop_messaging(tcp::socket sock)
 {
 	std::string rqst_msg;
@@ -46,11 +55,10 @@ void Client::loop_messaging(tcp::socket sock)
 	while (1)
 	{
 		X = std::to_string(get_random_value("DOUBLE"));
-		X.resize(X.length() - 3); // изменение точности double с 6 до 4 знаков
+		X.resize(X.length() - 2); // изменение точности double с 6 до 4 знаков
 		sleep((int)get_random_value("INTEGER"));
-//		sleep(1);
 		Y = std::to_string(get_random_value("DOUBLE"));
-		Y.resize(Y.length() - 3); // изменение точности double с 6 до 4 знаков
+		Y.resize(Y.length() - 2); // изменение точности double с 6 до 4 знаков
 
 		rqst_msg = X; // 23.1352
 		rqst_msg.append(" ");
@@ -58,16 +66,11 @@ void Client::loop_messaging(tcp::socket sock)
 		rqst_msg.append(" ");
 		rqst_msg.append(get_curr_time()); // 15:23:43
 		boost::asio::write(sock, boost::asio::buffer(rqst_msg, rqst_msg.length()));
-//		rqst_msg.clear();
-
-//		std::cout << "[Client] Enter a message: ";
-//		char request[max_length];
-//		std::cin.getline(request, max_length);
-//		size_t request_length = std::strlen(request);
-//		boost::asio::write(sock, boost::asio::buffer(request, request_length));
 
 		char reply[max_length];
 		size_t reply_length = boost::asio::read(sock, boost::asio::buffer(reply, 11));
+		if (reply_length == 0)
+			break;
 		if (reply[reply_length - 1] != '\n')
 			std::cout << "\n";
 		std::cout << "[Client] Reply message is: ";
@@ -78,17 +81,6 @@ void Client::loop_messaging(tcp::socket sock)
 
 void Client::show_statistic(tcp::socket sock)
 {
-	// Получить список UUID
-	// Сделать цикл по UUID
-		// Получение последнего сообщения связанного с UUID
-		// 1) Выборка и суммированние всех X значений данного пользователя,
-		// где время в промежутке (lst.msg time - 1min)
-		// 2) Выборка и суммированние всех Y значений данного пользователя,
-		// где время в промежутке (lst.msg time - 1min)
-		// 3) Выборка и суммированние всех X значений данного пользователя,
-		// где время в промежутке (lst.msg time - 5min)
-		// 4) Выборка и суммированние всех Y значений данного пользователя,
-		// где время в промежутке (lst.msg time - 5min)
 }
 
 void Client::start_messaging(std::string &host, std::string &port, std::string &flag)
@@ -100,14 +92,6 @@ void Client::start_messaging(std::string &host, std::string &port, std::string &
 	tcp::resolver resolver_t(context);
 	connect(sock, resolver_t.resolve(host, port));
 
-	if (flag.empty())
-	{
-		std::cout << "LOOP MSG" << std::endl;
-		loop_messaging(std::move(sock));
-	}
-	else
-	{
-		std::cout << "OOPS" << std::endl;
-		show_statistic(std::move(sock));
-	}
+	loop_messaging(std::move(sock));
+	//TODO: if (!flag.empty()) -> show_statistic(sock);
 }

@@ -5,6 +5,7 @@ Server::Server(boost::asio::io_context &context, std::uint16_t port)
 	_db(nullptr),
 	_db_error(nullptr)
 {
+	/** Создание или запуск БД */
 	if (sqlite3_open(DB_NAME, &_db))
 		fprintf(stderr, "Open/Create Database error: %s\n", sqlite3_errmsg(_db));
 	else if (sqlite3_exec(_db, CREATE_TABLE.c_str(), 0, 0, &_db_error))
@@ -21,15 +22,15 @@ Server::~Server()
 	sqlite3_close(_db);
 }
 
+/**
+ *  Ожидает входящее подключения, после этого создает новый объект сеанса
+ *  и перемещает полученный сокет на выполнение в новосозданный объект,
+ *  продолжая после этого ожидание нового подключения
+ */
 void Server::async_accept()
 {
 
-	//TODO: сделать обработку ошибок в этом методе
 	std::cout << "[Server] is waiting a new connection..." << std::endl;
-	// ожидает входящие подключения,
-	// после этого создает новый объект сеанса и
-	// перемещает связанный сокет в новый сеанс,
-	// переключаясь на ожидание нового подключения
 	_acceptor.async_accept(
 		[this](boost::system::error_code error, tcp::socket sock)
 		{
@@ -38,15 +39,12 @@ void Server::async_accept()
 			std::string endpoint = boost::lexical_cast<std::string>(sock.remote_endpoint(error));
 			std::cout << "New client is: " << endpoint << std::endl;
 
-//			Session *session = new Session(std::move(sock));
 			if (!error)
 			{
 				std::string uuid = boost::lexical_cast<std::string>(boost::uuids::random_generator()());
 				_sessions.insert(std::make_pair(endpoint,
 					new Session(std::move(sock), uuid, _db, _db_error)));
 				_sessions[endpoint]->start();
-//				std::shared_ptr<Session> ptr(session)->start();
-//				std::make_shared<Session>(std::move(sock))->start();
 			}
 			else
 				std::cerr << error.message() << "\n";
