@@ -16,9 +16,11 @@ using boost::asio::ip::tcp;
 class Client
 {
 	public:
+		Client();
+		~Client();
 		void start_messaging(std::string &host, std::string &port, std::string &flag);
 	private:
-		void		show_statistic(tcp::socket sock);
+		void		show_statistic(tcp::socket sock, std::string &flag);
 		void		loop_messaging(tcp::socket sock);
 		std::string	get_curr_time() const;
 		double		get_random_value(std::string type) const;

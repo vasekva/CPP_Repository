@@ -55,12 +55,14 @@ bool Session::make_sql_exec(void)
 	{
 		if (!is_statistic(data))
 			return (false);
-		//TODO:: get_stats();
+//		TODO:: get_stats();
+
 		std::cout << "    Getting statistic from the server..." << std::endl;
-		std::cout << " OOPS, this functionality is not ready yet" << std::endl;
-		std::cout << "                 Try again                " << std::endl;
-		std::cout << "==========================================" << std::endl;
-		do_read();
+		get_stats();
+//		std::cout << " OOPS, this functionality is not ready yet" << std::endl;
+//		std::cout << "                 Try again                " << std::endl;
+//		std::cout << "==========================================" << std::endl;
+//		do_read();
 	}
 	return (true);
 }
@@ -118,10 +120,54 @@ void Session::do_write(std::string msg)
 		});
 }
 
+int select_callback(void *p_data, int num_fields, char **p_fields, char **p_col_names)
+{
+	auto *records = static_cast<std::vector<std::vector<std::string> > *>(p_data);
+	try
+	{
+		records->emplace_back(p_fields, p_fields + num_fields);
+	}
+	catch (...)
+	{
+		// abort select on failure, don't let exception propogate thru sqlite3 call-stack
+		return (1);
+	}
+	return (0);
+}
+
+std::vector<std::vector<std::string> > select_stmt(const std::string stmt, sqlite3 *db)
+{
+	std::vector<std::vector<std::string> > records;
+	char *errmsg;
+
+	int ret = sqlite3_exec(db, stmt.c_str(), select_callback, &records, &errmsg);
+	if (ret != SQLITE_OK)
+	{
+		std::cerr << "Error in select statement " << stmt << "[" << errmsg << "]\n";
+	}
+	else
+	{
+		std::cerr << records.size() << " records returned.\n";
+	}
+
+	return (records);
+}
+
 // TODO: метод для реализации функционала статистики
 std::string Session::get_stats()
 {
 	std::cout << "OH YEAH STATS" << std::endl;
+	std::vector<std::vector<std::string> > records = select_stmt("SELECT * FROM " + TABLE_NAME, _db);
+	// 0 - UUID
+	// 1 - TIME
+	// 2 - X
+	// 3 - Y
+
+	for (int i = 0; i < records.size(); i++)
+	{
+		std::cout << records[i][3] << std::endl;
+	}
+
 	// Получить список UUID
 	// Сделать цикл по UUID
 	// Получение последнего сообщения связанного с UUID
