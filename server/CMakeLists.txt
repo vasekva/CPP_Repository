@@ -32,6 +32,8 @@ else()
     set(SOURCE_FILES
             main.cpp
             parse_functions.cpp
+            get_stats.cpp
+            tools.cpp
             ../sqlite/sqlite3.c
             Server.cpp
             Session.cpp
