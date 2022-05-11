@@ -29,6 +29,7 @@ else()
             main.cpp
             ../sqlite/sqlite3.c
             Server.cpp
+            Session.cpp
             )
 
     include_directories(${Boost_INCLUDE_DIRS})

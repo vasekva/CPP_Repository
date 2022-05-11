@@ -53,8 +53,8 @@ void Client::start_messaging(std::string &host, std::string &port)
 	{
 		X = std::to_string(get_random_value("DOUBLE"));
 		X.resize(X.length() - 3); // изменение точности double с 6 до 4 знаков
-//		sleep((int)get_random_value("INTEGER"));
-		sleep(3);
+		sleep((int)get_random_value("INTEGER"));
+//		sleep(3);
 		Y = std::to_string(get_random_value("DOUBLE"));
 		Y.resize(Y.length() - 3); // изменение точности double с 6 до 4 знаков
 

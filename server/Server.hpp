@@ -1,30 +1,9 @@
-#ifndef WEBSERV_T_EXERCISE_SERVER_HPP
-#define WEBSERV_T_EXERCISE_SERVER_HPP
+#ifndef SERVER_HPP
+#define SERVER_HPP
 
-#include <boost/asio.hpp>
-
-/** FOR_WINDOWS
- *
-#include <windows.h>
-#include <bcrypt.h>
-#pragma(lib, "bcrypt.lib")
-
-*/
-
-#include <boost/uuid/uuid.hpp>            // uuid class
-#include <boost/uuid/uuid_generators.hpp> // generators
-#include <boost/uuid/uuid_io.hpp>     	  // streaming operators etc.
-#include <boost/lexical_cast.hpp>
-
-#include <iostream>
-#include <time.h>
-#include <memory>
-#include <map>
-
-#include "../sqlite/sqlite3.h"
-
-using namespace boost::asio;
-using boost::asio::ip::tcp;
+#include "main_header.hpp"
+#include "Session.hpp"
+#include "db.hpp"
 
 class Session;
 
@@ -42,5 +21,4 @@ class Server
 		void async_accept();
 };
 
-
-#endif //WEBSERV_T_EXERCISE_SERVER_HPP
+#endif
