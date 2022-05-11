@@ -15,6 +15,5 @@ const std::string CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + "(
 								 "X	REAL NOT NULL, "
 								 "Y	REAL NOT NULL"
 								 ");";
-//							 "PRIMARY KEY(\"UUID\"));";
 
 #endif
