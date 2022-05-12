@@ -59,8 +59,8 @@ std::vector<int> get_sequence_frame(const std::vector<std::vector<std::string>> 
 		return (indxs); // возвращается пустой список
 
 	//TODO: удалить
-	std::cout << "Ищем: " << UUID << std::endl;
-	std::cout << "Нашли: " << *bgn << std::endl;
+//	std::cout << "Ищем: " << UUID << std::endl;
+//	std::cout << "Нашли: " << *bgn << std::endl;
 
 
 	/** Итерируемся пока не дойдем до конца, либо пока не дойдем до нового UUID */
@@ -86,6 +86,8 @@ std::vector<int> get_sequence_frame_by_time(const std::vector<std::vector<std::s
 		return (frames);
 	}
 	frames = get_sequence_frame(bd_data, UUID);
+	if (frames.empty())
+		throw std::runtime_error("get_sequence_frame_by_time() error: UUID не найден!!");
 
 	/** минимальное время первого сообщения, которое ищем (последнее сообщение - time) */
 	size_t diff_time = std::atoi(bd_data[frames[1] - 1][1].substr(3, 2).c_str()) - time;
@@ -95,13 +97,13 @@ std::vector<int> get_sequence_frame_by_time(const std::vector<std::vector<std::s
 
 
 	//TODO: удалить
-	std::cout << "FST TIME: " << curr_time << std::endl;
-	std::cout << "DIFF: " << diff_time << std::endl;
+//	std::cout << "FST TIME: " << curr_time << std::endl;
+//	std::cout << "DIFF: " << diff_time << std::endl;
 
 	int row_i = frames[0];
 	if (diff_time > curr_time)
 	{
-		std::cout << "WOOOOOOOW" << std::endl;
+//		std::cout << "WOOOOOOOW" << std::endl;
 
 		for (; row_i != frames[1]; row_i++)
 		{
@@ -112,8 +114,25 @@ std::vector<int> get_sequence_frame_by_time(const std::vector<std::vector<std::s
 		frames[0] = row_i;
 	}
 	//TODO: удалить
-	std::cout << "get_sequence_frame_by_time(" << time << ") frames: " <<
-		frames[0] << " " << frames[1] << std::endl;
+//	std::cout << "get_sequence_frame_by_time(" << time << ") frames: " <<
+//		frames[0] << " " << frames[1] << std::endl;
 
 	return (frames);
+}
+
+float get_average_x_by_time(const std::vector<std::vector<std::string>> &bd_data, const std::string &UUID, int time)
+{
+	float average = 0.0f;
+	std::vector<int> frames = get_sequence_frame_by_time(bd_data, UUID, time);
+	if (frames.empty())
+		throw std::runtime_error("get_average_x_by_time() error: vector 'frames' is empty!!");
+	float size = 0.0;
+	for (int row = frames[0]; row != frames[1]; row++)
+	{
+		average += std::stof(bd_data[row][2]);
+		size++;
+	}
+	//TODO: удалить
+//	std::cout << "get_average_x_by_time(): " << average / (float)(frames[1] - frames[0]) << std::endl;
+	return (average);
 }

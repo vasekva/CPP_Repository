@@ -69,10 +69,15 @@ std::string Session::get_stats()
 				records[row][1] << " " <<
 				records[row][2] << " " <<
 				records[row][3] << " " <<
+				get_average_x_by_time(records, *bgn, 1) << " " <<
+				get_average_x_by_time(records, *bgn, 5) << " " <<
 				std::endl;
 		}
 		std::cout << "========================================" << std::endl;
 	}
+
+	bgn = uuid_set.begin();
+
 
 	// Получить список UUID
 	// Сделать цикл по UUID
@@ -88,7 +93,3 @@ std::string Session::get_stats()
 
 	return ("");
 }
-
-/**
-* 1) Получил двумерный массив векторов строк информации из базы данных
-*/

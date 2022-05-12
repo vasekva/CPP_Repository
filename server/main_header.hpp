@@ -17,6 +17,7 @@
 #include <boost/lexical_cast.hpp>
 
 #include <iostream>
+#include <exception>
 #include <time.h>
 #include <memory>
 #include <map>
