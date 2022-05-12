@@ -10,4 +10,5 @@ std::vector<std::string>	get_user_column(const std::vector<std::vector<std::stri
 std::vector<int>			get_sequence_frame(const std::vector<std::vector<std::string>> &bd_data, const std::string &UUID);
 std::vector<int> 			get_sequence_frame_by_time(const std::vector<std::vector<std::string>> &bd_data, const std::string &UUID, int time);
 float						get_average_x_by_time(const std::vector<std::vector<std::string>> &bd_data, const std::string &UUID, int time);
+int get_y_fraction_part_sum_by_time(const std::vector<std::vector<std::string>> &bd_data, const std::string &UUID, int time);
 #endif

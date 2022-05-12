@@ -77,6 +77,8 @@ std::string Session::get_stats()
 	}
 
 	bgn = uuid_set.begin();
+	int sum = get_y_fraction_part_sum_by_time(records, *bgn, 1);
+	std::cout << "SUM: " << sum << std::endl;
 
 
 	// Получить список UUID
