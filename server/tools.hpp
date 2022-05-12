@@ -5,7 +5,8 @@
 #include <set>
 
 std::set<std::string>		convert_to_set(std::vector<std::string> &v);
-std::vector<std::string>	get_column(std::vector<std::vector<std::string> > &bd_data, int ind);
-std::vector<std::string>	get_user_column(std::vector<std::vector<std::string>> &bd_data, std::string UUID, int column);
-std::vector<int>			get_sequence_frame(std::vector<std::vector<std::string>> &bd_data, std::string UUID);
+std::vector<std::string>	get_column(const std::vector<std::vector<std::string> > &bd_data, int ind);
+std::vector<std::string>	get_user_column(const std::vector<std::vector<std::string>> &bd_data, std::string UUID, int column);
+std::vector<int>			get_sequence_frame(const std::vector<std::vector<std::string>> &bd_data, const std::string &UUID);
+std::vector<int> 			get_sequence_frame_by_time(const std::vector<std::vector<std::string>> &bd_data, const std::string &UUID, int time);
 #endif

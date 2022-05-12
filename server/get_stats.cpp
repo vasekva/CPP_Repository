@@ -44,30 +44,11 @@ std::string Session::get_stats()
 	// 2 - X
 	// 3 - Y
 
-
-
 	/** Получаю полный список UUID строк*/
 	std::vector<std::string> vctr_column = get_column(records, 0); // <---- cписок всех UUID
 	/** Получаю набор уникальных UUID строк */
 	std::set<std::string> uuid_set = convert_to_set(vctr_column); // <---- набор уникальных UUID
 
-//	/** Получаю список X значений по UUID[0] */
-//	std::vector<std::string> uuids_x = get_user_column(records, (*uuid_set.begin()), 2);
-//	std::cout << "X Size: " << uuids_x.size() << std::endl;
-//	for (const std::string &str : uuids_x)
-//		std::cout << str << std::endl;
-//
-//	/** Получаю список Y значений по UUID[0] */
-//	std::vector<std::string> uuids_y = get_user_column(records, (*uuid_set.begin()), 3);
-//	std::cout << "Y Size: " << uuids_y.size() << std::endl;
-//	for (const std::string &str : uuids_y)
-//		std::cout << str << std::endl;
-//
-//	/** Получаю список значений времени по UUID[0] */
-//	std::vector<std::string> uuids_time = get_user_column(records, (*uuid_set.begin()), 1);
-//	std::cout << "Time Size: " << uuids_y.size() << std::endl;
-//	for (const std::string &str : uuids_time)
-//		std::cout << str << std::endl;
 
 	std::set<std::string>::iterator bgn = uuid_set.begin();
 	std::cout << "SIZE records Y: " << records.size() << std::endl;
@@ -81,7 +62,7 @@ std::string Session::get_stats()
 	int ind = 0; //TODO: <---- удалить
 	for (; bgn != uuid_set.end(); bgn++)
 	{
-		frames = get_sequence_frame(records, *bgn);
+		frames = get_sequence_frame_by_time(records, *bgn, 2);
 		for (int row = frames[0]; row != frames[1]; row++)
 		{
 			std::cout << ind++ << ": " <<
@@ -92,9 +73,6 @@ std::string Session::get_stats()
 		}
 		std::cout << "========================================" << std::endl;
 	}
-
-//	std::vector<int> idxs = get_sequence_frame(records, vctr_column[0]);
-
 
 	// Получить список UUID
 	// Сделать цикл по UUID

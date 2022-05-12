@@ -9,7 +9,7 @@ std::set<std::string> convert_to_set(std::vector<std::string> &v)
 	return (my_set);
 }
 
-std::vector<std::string>	get_column(std::vector<std::vector<std::string>> &bd_data, int ind)
+std::vector<std::string>	get_column(const std::vector<std::vector<std::string>> &bd_data, int ind)
 {
 	std::vector<std::string> vector_column;
 
@@ -22,7 +22,7 @@ std::vector<std::string>	get_column(std::vector<std::vector<std::string>> &bd_da
 }
 
 /** Возвращает колонку связанную с пользователем по UUID и преобразованную в список строк */
-std::vector<std::string> get_user_column(std::vector<std::vector<std::string>> &bd_data, std::string UUID, int column)
+std::vector<std::string> get_user_column(const std::vector<std::vector<std::string>> &bd_data, std::string UUID, int column)
 {
 	std::vector<std::string> vector_column;
 
@@ -45,8 +45,8 @@ std::vector<std::string> get_user_column(std::vector<std::vector<std::string>> &
 }
 
 
-/** Возврвщает вектор, в котором лежат индексы начала и конца последовательности информации UUID */
-std::vector<int> get_sequence_frame(std::vector<std::vector<std::string>> &bd_data, std::string UUID)
+/** Возврвщает вектор, в котором лежат индексы начала и конца последовательности информации пользователя (UUID) */
+std::vector<int> get_sequence_frame(const std::vector<std::vector<std::string>> &bd_data, const std::string &UUID)
 {
 	std::vector<int> indxs;
 	std::vector<std::string>::iterator bgn;
@@ -58,29 +58,62 @@ std::vector<int> get_sequence_frame(std::vector<std::vector<std::string>> &bd_da
 	if ((bgn = std::find(vector_column.begin(), vector_column.end(), UUID)) == vector_column.end())
 		return (indxs); // возвращается пустой список
 
+	//TODO: удалить
 	std::cout << "Ищем: " << UUID << std::endl;
 	std::cout << "Нашли: " << *bgn << std::endl;
-//	if (bgn != vector_column.begin())
-//		std::cout << "Предыдущее значение от итератора: " << *(bgn - 1) << std::endl;
-//	else
-//		std::cout << "Мы в самом начале!: " << *bgn << std::endl;
+
 
 	/** Итерируемся пока не дойдем до конца, либо пока не дойдем до нового UUID */
 	for (end = bgn; end != vector_column.end(), *end == UUID; end++);
-//	if (end != vector_column.end())
-//	{
-//		std::cout << "Нашли: " << *end << std::endl;
-//		std::cout << "Следующее значение от итератора: " << *(end + 1) << std::endl;
-//		if (end != vector_column.begin())
-//			std::cout << "Предыдущее значение от итератора: " << *(end - 1) << std::endl;
-//		else
-//			std::cout << "Мы в самом начале!: " << *end << std::endl;
-//	}
-//	else
-//		std::cout << "Мы в самом конце! " << std::endl;
 
 	indxs.push_back(std::distance(vector_column.begin(), bgn)); // индекс начала
 	indxs.push_back(std::distance(vector_column.begin(), end)); // индекс конца
 
 	return (indxs);
+}
+
+/**
+ * Возвращает вектор, в котором лежат индексы начала и конца информации пользователя (UUID),
+ * за последнее (time) время от времени последнего сообщения пользователя
+ * */
+std::vector<int> get_sequence_frame_by_time(const std::vector<std::vector<std::string>> &bd_data, const std::string &UUID, int time)
+{
+	std::vector<int> frames;
+
+	if (time < 1 || time > 60)
+	{
+		std::cerr << "get_sequence_frame_by_time() error: invalid time" << std::endl;
+		return (frames);
+	}
+	frames = get_sequence_frame(bd_data, UUID);
+
+	/** минимальное время первого сообщения, которое ищем (последнее сообщение - time) */
+	size_t diff_time = std::atoi(bd_data[frames[1] - 1][1].substr(3, 2).c_str()) - time;
+
+	/** время текущего по индексу сообщения сообщения */
+	size_t curr_time = std::atoi(bd_data[frames[0]][1].substr(3, 2).c_str());
+
+
+	//TODO: удалить
+	std::cout << "FST TIME: " << curr_time << std::endl;
+	std::cout << "DIFF: " << diff_time << std::endl;
+
+	int row_i = frames[0];
+	if (diff_time > curr_time)
+	{
+		std::cout << "WOOOOOOOW" << std::endl;
+
+		for (; row_i != frames[1]; row_i++)
+		{
+			curr_time = std::atoi(bd_data[row_i][1].substr(3, 2).c_str());
+			if (curr_time == diff_time)
+				break;
+		}
+		frames[0] = row_i;
+	}
+	//TODO: удалить
+	std::cout << "get_sequence_frame_by_time(" << time << ") frames: " <<
+		frames[0] << " " << frames[1] << std::endl;
+
+	return (frames);
 }
