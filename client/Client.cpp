@@ -58,11 +58,11 @@ void Client::loop_messaging(tcp::socket sock)
 	while (1)
 	{
 		X = std::to_string(get_random_value("DOUBLE"));
-		X.resize(X.length() - 2); // изменение точности double с 6 до 4 знаков
+		X.resize(X.length() - 4); // изменение точности double с 6 до 2 знаков
 		sleep((int)get_random_value("INTEGER"));
 //		sleep(2); //TODO: <---- удалить
 		Y = std::to_string(get_random_value("DOUBLE"));
-		Y.resize(Y.length() - 2); // изменение точности double с 6 до 4 знаков
+		Y.resize(Y.length() - 4); // изменение точности double с 6 до 2 знаков
 
 		rqst_msg = X; // 23.1352
 		rqst_msg.append(" ");
@@ -83,8 +83,30 @@ void Client::loop_messaging(tcp::socket sock)
 	}
 }
 
+void Client::read_statistic(tcp::socket sock)
+{
+	boost::system::error_code error;
+
+	size_t len;
+	std::string statistic;
+	char buf[30];
+	while (error != boost::asio::error::eof || len != 0)
+	{
+		len = sock.read_some(boost::asio::buffer(buf, 30), error);
+		statistic += std::string(buf);
+		memset(buf, 0, 30); // зануление буфера
+		if (len == 0)
+		{
+			sock.close();
+			break;
+		}
+	}
+	std::cout << statistic;
+}
+
+
 //TODO: заменить чтение с консоли на прямую передачу текста
-void Client::show_statistic(tcp::socket sock, std::string &flag)
+void Client::show_statistic(tcp::socket sock)
 {
 	std::cout << "WOW" << std::endl;
 	std::cout << "[Client] Enter a message: ";
@@ -102,7 +124,9 @@ void Client::show_statistic(tcp::socket sock, std::string &flag)
 	size_t request_length = std::strlen(request);
 
 	boost::asio::write(sock, boost::asio::buffer(request, request_length));
+	read_statistic(std::move(sock));
 }
+
 
 void Client::start_messaging(std::string &host, std::string &port, std::string &flag)
 {
@@ -116,5 +140,5 @@ void Client::start_messaging(std::string &host, std::string &port, std::string &
 	if (flag.empty())
 		loop_messaging(std::move(sock));
 	else
-		show_statistic(std::move(sock), flag);
+		show_statistic(std::move(sock));
 }

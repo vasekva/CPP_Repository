@@ -28,6 +28,7 @@ std::string Session::get_uuid(void) const
  * */
 bool Session::make_sql_exec(void)
 {
+	boost::system::error_code error;
 	std::string data = _data;
 	clear_eof(data);
 
@@ -55,14 +56,14 @@ bool Session::make_sql_exec(void)
 	{
 		if (!is_statistic(data))
 			return (false);
-//		TODO:: get_stats();
 
 		std::cout << "    Getting statistic from the server..." << std::endl;
-		get_stats();
-//		std::cout << " OOPS, this functionality is not ready yet" << std::endl;
-//		std::cout << "                 Try again                " << std::endl;
-//		std::cout << "==========================================" << std::endl;
-//		do_read();
+		std::string statistic = get_stats();
+		if (statistic.empty())
+			throw std::runtime_error("make_sql_exec() error: Строка статистики пустая!");
+		do_write(statistic);
+		_sock.shutdown(boost::asio::ip::tcp::socket::shutdown_both, error);
+		_sock.close();
 	}
 	return (true);
 }

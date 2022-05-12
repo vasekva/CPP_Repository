@@ -140,18 +140,19 @@ float get_average_x_by_time(const std::vector<std::vector<std::string>> &bd_data
 int get_y_fraction_part_sum_by_time(const std::vector<std::vector<std::string>> &bd_data, const std::string &UUID, int time)
 {
 	int sum = 0.0f;
+	int dot_pos = 0;
+
 	std::vector<int> frames = get_sequence_frame_by_time(bd_data, UUID, time);
 	if (frames.empty())
 		throw std::runtime_error("get_y_fraction_part_sum_by_time() error: vector 'frames' is empty!!");
 
 	std::string str;
-	int dot_pos = 0;
 	for (int row = frames[0]; row != frames[1]; row++)
 	{
 		dot_pos = bd_data[row][2].find('.');
-		std::cout << "dot pos: " << dot_pos << std::endl;
+//		std::cout << "dot pos: " << dot_pos << std::endl;
 		str = bd_data[row][2].substr(dot_pos + 1, (bd_data[row][2].length() - dot_pos));
-		std::cout << "STR: " << str << std::endl;
+//		std::cout << "STR: " << str << std::endl;
 		sum += stoi(str);
 	}
 	//TODO: удалить

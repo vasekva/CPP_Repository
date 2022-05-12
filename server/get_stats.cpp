@@ -18,80 +18,55 @@ static int select_callback(void *p_data, int num_fields, char **p_fields, char *
 
 static std::vector<std::vector<std::string> > select_stmt(const std::string stmt, sqlite3 *db)
 {
-	std::vector<std::vector<std::string> > records;
 	char *errmsg;
+	std::vector<std::vector<std::string>> records;
 
 	int ret = sqlite3_exec(db, stmt.c_str(), select_callback, &records, &errmsg);
 	if (ret != SQLITE_OK)
-	{
 		std::cerr << "Error in select statement " << stmt << "[" << errmsg << "]\n";
-	}
 	else
-	{
 		std::cerr << records.size() << " records returned.\n";
-	}
 
 	return (records);
 }
 
-// TODO: метод для реализации функционала статистики
 std::string Session::get_stats()
 {
-	std::cout << "OH YEAH STATS" << std::endl;
+	// 0 - UUID // 1 - TIME // 2 - X // 3 - Y
 	std::vector<std::vector<std::string> > records = select_stmt("SELECT * FROM " + TABLE_NAME, _db);
-	// 0 - UUID
-	// 1 - TIME
-	// 2 - X
-	// 3 - Y
 
-	/** Получаю полный список UUID строк*/
+	/** Получаю колонку UUID строк */
 	std::vector<std::string> vctr_column = get_column(records, 0); // <---- cписок всех UUID
 	/** Получаю набор уникальных UUID строк */
 	std::set<std::string> uuid_set = convert_to_set(vctr_column); // <---- набор уникальных UUID
 
 
 	std::set<std::string>::iterator bgn = uuid_set.begin();
-	std::cout << "SIZE records Y: " << records.size() << std::endl;
-	std::cout << "SIZE records X: " << records[0].size() << std::endl;
+	std::cout << "Rows: " << records.size() << std::endl;
+	std::cout << "Columns: " << records[0].size() << std::endl;
 
 	/** возвращает первый и последний индекс совпадения */
 	std::vector<int> frames;
 
-	std::cout << "YEAAAAH, LET's GOOOOOOO" << std::endl;
-
-	int ind = 0; //TODO: <---- удалить
+	std::string statistic; // для отправки статистики
+	std::stringstream str_stream;
 	for (; bgn != uuid_set.end(); bgn++)
 	{
-		frames = get_sequence_frame_by_time(records, *bgn, 2);
-		for (int row = frames[0]; row != frames[1]; row++)
-		{
-			std::cout << ind++ << ": " <<
-				records[row][1] << " " <<
-				records[row][2] << " " <<
-				records[row][3] << " " <<
-				get_average_x_by_time(records, *bgn, 1) << " " <<
-				get_average_x_by_time(records, *bgn, 5) << " " <<
-				std::endl;
-		}
-		std::cout << "========================================" << std::endl;
+		statistic.append(*bgn) += " ";
+
+		/** получение среднего X и сумму модуля Y за 1 минуту */
+		str_stream << get_average_x_by_time(records, *bgn, 1);
+		statistic.append(str_stream.str()) += " ";
+		statistic.append(std::to_string(get_y_fraction_part_sum_by_time(records, *bgn, 1))) += " ";
+		str_stream.str(std::string()); // чистка stringstream
+
+		/** получение среднего X и сумму модуля Y за 5 минут */
+		str_stream << get_average_x_by_time(records, *bgn, 5);
+		statistic.append(str_stream.str()) += " ";
+		statistic.append(std::to_string(get_y_fraction_part_sum_by_time(records, *bgn, 5))) += "\n";
+		str_stream.str(std::string()); // чистка stringstream
 	}
 
-	bgn = uuid_set.begin();
-	int sum = get_y_fraction_part_sum_by_time(records, *bgn, 1);
-	std::cout << "SUM: " << sum << std::endl;
-
-
-	// Получить список UUID
-	// Сделать цикл по UUID
-	// Получение последнего сообщения связанного с UUID
-	// 1) Выборка и суммированние всех X значений данного пользователя,
-	// где время в промежутке (lst.msg time - 1min)
-	// 2) Выборка и суммированние всех Y значений данного пользователя,
-	// где время в промежутке (lst.msg time - 1min)
-	// 3) Выборка и суммированние всех X значений данного пользователя,
-	// где время в промежутке (lst.msg time - 5min)
-	// 4) Выборка и суммированние всех Y значений данного пользователя,
-	// где время в промежутке (lst.msg time - 5min)
-
-	return ("");
+//	std::cout << statistic; //TODO: <--- удалить
+	return (statistic);
 }
