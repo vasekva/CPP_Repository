@@ -60,6 +60,7 @@ void Client::loop_messaging(tcp::socket sock)
 		X = std::to_string(get_random_value("DOUBLE"));
 		X.resize(X.length() - 2); // изменение точности double с 6 до 4 знаков
 		sleep((int)get_random_value("INTEGER"));
+//		sleep(2); //TODO: <---- удалить
 		Y = std::to_string(get_random_value("DOUBLE"));
 		Y.resize(Y.length() - 2); // изменение точности double с 6 до 4 знаков
 

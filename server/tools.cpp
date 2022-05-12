@@ -34,9 +34,11 @@ std::vector<std::string> get_user_column(std::vector<std::vector<std::string>> &
 	if (indxs.empty())
 		return (vector_column);
 
+//	std::cout << "get_user_column() indxs: " << indxs[0] << " " << indxs[1] << std::endl;
+
 	for (int i = indxs[0]; i != indxs[1]; i++)
 	{
-		std::cout << "get_user_column(): " << bd_data[i][column] << std::endl;
+//		std::cout << "get_user_column(): " << bd_data[i][column] << std::endl;
 		vector_column.push_back(bd_data[i][column]);
 	}
 	return (vector_column);
@@ -58,25 +60,24 @@ std::vector<int> get_sequence_frame(std::vector<std::vector<std::string>> &bd_da
 
 	std::cout << "Ищем: " << UUID << std::endl;
 	std::cout << "Нашли: " << *bgn << std::endl;
-	if (bgn != vector_column.begin())
-		std::cout << "Предыдущее значение от итератора: " << *(bgn - 1) << std::endl;
-	else
-		std::cout << "Мы в самом начале!: " << *bgn << std::endl;
+//	if (bgn != vector_column.begin())
+//		std::cout << "Предыдущее значение от итератора: " << *(bgn - 1) << std::endl;
+//	else
+//		std::cout << "Мы в самом начале!: " << *bgn << std::endl;
 
 	/** Итерируемся пока не дойдем до конца, либо пока не дойдем до нового UUID */
 	for (end = bgn; end != vector_column.end(), *end == UUID; end++);
-
-	if (end != vector_column.end())
-	{
-		std::cout << "Нашли: " << *end << std::endl;
-		std::cout << "Следующее значение от итератора: " << *(end + 1) << std::endl;
-		if (end != vector_column.begin())
-			std::cout << "Предыдущее значение от итератора: " << *(end - 1) << std::endl;
-		else
-			std::cout << "Мы в самом начале!: " << *end << std::endl;
-	}
-	else
-		std::cout << "Мы в самом конце!: " << *end << std::endl;
+//	if (end != vector_column.end())
+//	{
+//		std::cout << "Нашли: " << *end << std::endl;
+//		std::cout << "Следующее значение от итератора: " << *(end + 1) << std::endl;
+//		if (end != vector_column.begin())
+//			std::cout << "Предыдущее значение от итератора: " << *(end - 1) << std::endl;
+//		else
+//			std::cout << "Мы в самом начале!: " << *end << std::endl;
+//	}
+//	else
+//		std::cout << "Мы в самом конце! " << std::endl;
 
 	indxs.push_back(std::distance(vector_column.begin(), bgn)); // индекс начала
 	indxs.push_back(std::distance(vector_column.begin(), end)); // индекс конца
