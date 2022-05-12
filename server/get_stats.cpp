@@ -66,7 +66,5 @@ std::string Session::get_stats()
 		statistic.append(std::to_string(get_y_fraction_part_sum_by_time(records, *bgn, 5))) += "\n";
 		str_stream.str(std::string()); // чистка stringstream
 	}
-
-//	std::cout << statistic; //TODO: <--- удалить
 	return (statistic);
 }

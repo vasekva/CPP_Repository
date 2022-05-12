@@ -108,22 +108,13 @@ void Client::read_statistic(tcp::socket sock)
 //TODO: заменить чтение с консоли на прямую передачу текста
 void Client::show_statistic(tcp::socket sock)
 {
-	std::cout << "WOW" << std::endl;
-	std::cout << "[Client] Enter a message: ";
-//	char request[13] = "--statistic\n";
+	std::cout << "Получение статистики с сервера..." << std::endl;
+	sleep(1); // TODO: SOME BIG QUESTION
 
-//	std::string request;
-//	std::stringstream ss;
-//	ss.str("--statistic");
-//	request = ss.str();
-//		std::cout << request << '\n';
-//	size_t request_length = request.length();
+	std::stringstream stream;
+	stream << "--statistic";
 
-	char request[max_length];
-	std::cin.getline(request, max_length);
-	size_t request_length = std::strlen(request);
-
-	boost::asio::write(sock, boost::asio::buffer(request, request_length));
+	boost::asio::write(sock, boost::asio::buffer(stream.str(), 11));
 	read_statistic(std::move(sock));
 }
 

@@ -35,7 +35,6 @@ void Server::async_accept()
 		[this](boost::system::error_code error, tcp::socket sock)
 		{
 			std::cout << "New connection has been accepted!" << std::endl;
-
 			std::string endpoint = boost::lexical_cast<std::string>(sock.remote_endpoint(error));
 			std::cout << "New client is: " << endpoint << std::endl;
 
