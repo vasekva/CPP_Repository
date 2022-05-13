@@ -77,7 +77,7 @@ void Client::loop_messaging(tcp::socket sock)
 			break;
 		if (reply[reply_length - 1] != '\n')
 			std::cout << "\n";
-		std::cout << "[Client] Reply message is: ";
+		std::cout << "[Client] Обратное сообщение от сервера: ";
 		std::cout.write(reply, reply_length);
 		std::cout << "\n";
 	}
@@ -105,7 +105,6 @@ void Client::read_statistic(tcp::socket sock)
 }
 
 
-//TODO: заменить чтение с консоли на прямую передачу текста
 void Client::show_statistic(tcp::socket sock)
 {
 	std::cout << "Получение статистики с сервера..." << std::endl;

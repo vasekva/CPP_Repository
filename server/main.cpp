@@ -3,7 +3,6 @@
 int main(int argc, char **argv)
 {
 	std::uint16_t port = 0;
-
 	std::cout << "Hello, World!" << std::endl;
 
 	try

@@ -25,29 +25,24 @@ std::string Session::get_uuid(void) const
 
 /**
  * Главная функция выполнения взаимодействия с БД
- * 1) make_insert_msg конструирует сообщение для вставки данных в бд
- * 2) полученная команда подается в sqlite3_exec()
+ * 1) сериализация входной строки от клиента.
+ * 2) make_insert_msg конструирует сообщение для вставки данных в бд
+ * 3) полученная команда подается в sqlite3_exec()
  *
- * 3) Конструирует сообщение статистики для клиента путем вызова
- * get_stats() и отправляет сообщение клиенту, закрывая соединение
+ * 4) Конструирует сообщение статистики для клиента путем вызова
+ * get_stats() и отправляет сообщение клиенту, закрывая соединение.
  * */
-bool Session::make_sql_exec(void)
+bool Session::make_sql_exec(void)  /** Cериализация */
 {
 	boost::system::error_code error;
 	std::string data = _data;
 	clear_eof(data);
 
-	/** сериализация */ //TODO: сериализация
 	_proto_requests.add_request_msg(_data);
-
-	// TODO: удалить
-	std::cout << "REQUEST MSG: "
-		<< _proto_requests.request_msg()[_proto_requests.request_msg_size() - 1] << std::endl;
-
 	std::fstream output = std::fstream("data.bin", std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
 	if (!_proto_requests.SerializeToOstream(&output))
 	{
-		std::cerr << "Failed to write requests data ." << std::endl;
+		std::cerr << "Ошибка записи данных запроса." << std::endl;
 	}
 
 	if (data.find("--statistic") == std::string::npos)
@@ -55,18 +50,18 @@ bool Session::make_sql_exec(void)
 		std::string msg = make_insert_msg(this->get_uuid(), data);
 		if (msg.empty())
 		{
-			std::cout << "INCORRECT MESSAGE FROM THE CLIENT!" << std::endl;
+			std::cout << "Неверный формат сообщения от пользователя!" << std::endl;
 			return (false);
 		}
 
-		std::cout << "Msg for DB: " << msg << std::endl;
+		std::cout << "Сообщение для посылки в БД: " << msg << std::endl;
 		if (sqlite3_exec(_db, msg.c_str(), 0, 0, &_db_error))
 		{
-			fprintf(stderr, "SQL Error: %s\n", _db_error);
+			fprintf(stderr, "Ошибка SQL_exec: %s\n", _db_error);
 			sqlite3_free(_db_error);
 		}
 		else
-			printf("Data Inserting has done correct!\n");
+			printf("Вставка данных прошла успешно!\n");
 		std::cout << "==========================================" << std::endl;
 		do_write("Try again!\n");
 	}
@@ -75,10 +70,11 @@ bool Session::make_sql_exec(void)
 		if (!is_statistic(data))
 			return (false);
 
-		std::cout << "    Getting statistic from the server..." << std::endl;
+		std::cout << "Получение информации с базы данных..." << std::endl;
 		std::string statistic = get_stats();
 		if (statistic.empty())
 			throw std::runtime_error("make_sql_exec() error: Строка статистики пустая!");
+		std::cout << "Отправка информации клиенту..." << std::endl;
 		do_write(statistic);
 		_sock.shutdown(boost::asio::ip::tcp::socket::shutdown_both, error);
 		_sock.close();
@@ -91,29 +87,29 @@ void Session::do_read(void)
 	_sock.async_read_some(boost::asio::buffer(_data, max_length),
 		[this](boost::system::error_code error, std::size_t length)
 		{
-			/** Выполнение обработки полученного сообщения */
+			/* Выполнение обработки полученного сообщения */
 			if (!error)
 			{
 				std::cout << "=================[Server]=================\n" << std::endl;
-				std::cout << "client " << this->get_uuid() << " has send a message: " << _data << std::endl;
+				std::cout << "Клиент " << this->get_uuid() << " отправил сообщение: " << _data << std::endl;
 
 				/** Выполнение взаимодействия с БД */
 				if (std::string(_data).empty() || !make_sql_exec())
 				{
 					if (std::string(_data).empty())
-						std::cout << "Message from the client is empty!!" << std::endl;
+						std::cout << "Сообщение от клиента пустое!!" << std::endl;
 					_sock.shutdown(boost::asio::ip::tcp::socket::shutdown_both, error);
 					_sock.close();
 					return ;
 				}
 			}
-			/** проверка на отключение, либо ошибку */
+			/* проверка на отключение, либо ошибку */
 			else
 			{
 				if (error == boost::asio::error::eof)
 				{
-					std::cout << "[Server] client #" << this->get_uuid() << " " << _sock.remote_endpoint(error) <<
-							" disconnected" << std::endl;
+					std::cout << "[Server] клиент #" << this->get_uuid() << " " << _sock.remote_endpoint(error) <<
+							" отключился" << std::endl;
 				}
 				else
 				{
@@ -123,23 +119,23 @@ void Session::do_read(void)
 				}
 			}
 		});
-	/** обнуление буфера принятого сообщения */
+	/* обнуление буфера принятого сообщения */
 	memset(_data, 0, max_length);
 }
 
+/**
+ * Отправление данных клиенту и сериализация
+ * */
 void Session::do_write(std::string msg)
 {
-	/** сериализация */ //TODO: сериализация
 	_proto_responses.add_response_msg(msg);
-	// TODO: удалить
-	std::cout << "RESPONSE MSG: " <<
-		_proto_responses.response_msg()[_proto_responses.response_msg_size() - 1] << std::endl;
 
 	std::fstream output = std::fstream("data.bin", std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
 	if (!_proto_responses.SerializeToOstream(&output))
 	{
-		std::cerr << "Failed to write responses data." << std::endl;
+		std::cerr << "Ошибка записи данных ответа." << std::endl;
 	}
+	output.close();
 
 	boost::asio::async_write(_sock, boost::asio::buffer(msg, msg.length()),
 		[this](boost::system::error_code error, std::size_t length)
