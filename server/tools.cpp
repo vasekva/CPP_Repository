@@ -139,7 +139,7 @@ float get_average_x_by_time(const std::vector<std::vector<std::string>> &bd_data
 
 int get_y_fraction_part_sum_by_time(const std::vector<std::vector<std::string>> &bd_data, const std::string &UUID, int time)
 {
-	int sum = 0.0f;
+	int sum = 0;
 	int dot_pos = 0;
 
 	std::vector<int> frames = get_sequence_frame_by_time(bd_data, UUID, time);
