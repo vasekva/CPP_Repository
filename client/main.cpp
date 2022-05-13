@@ -22,6 +22,9 @@ static bool is_host_valid(std::string host)
 	if (dot_count != 3)
 		ret = false;
 
+	if (host != "127.0.0.1" && host != "0.0.0.0")
+		ret = false;
+
 	return (ret);
 }
 
@@ -55,7 +58,7 @@ static bool is_correct_input(int argc, char **argv)
 	}
 	if (!is_host_valid(std::string(argv[1])))
 	{
-		std::cerr << "Incorrect host! Example: 127.0.0.1" << std::endl;
+		std::cerr << "Incorrect host!\nExample: 127.0.0.1 or 0.0.0.0" << std::endl;
 		ret_flag = false;
 	}
 	if (!is_port_valid(std::string(argv[2])))
