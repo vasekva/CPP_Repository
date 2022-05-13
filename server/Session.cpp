@@ -38,15 +38,17 @@ bool Session::make_sql_exec(void)
 	clear_eof(data);
 
 	/** сериализация */ //TODO: сериализация
-	_proto_requests.add_request_msg(data);
+	_proto_requests.add_request_msg(_data);
 
 	// TODO: удалить
 	std::cout << "REQUEST MSG: "
 		<< _proto_requests.request_msg()[_proto_requests.request_msg_size() - 1] << std::endl;
 
-	std::ofstream _out = std::ofstream("data.bin", std::ios_base::binary);
-	_proto_requests.SerializeToOstream(&_out);
-	_out.close();
+	std::fstream output = std::fstream("data.bin", std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
+	if (!_proto_requests.SerializeToOstream(&output))
+	{
+		std::cerr << "Failed to write requests data ." << std::endl;
+	}
 
 	if (data.find("--statistic") == std::string::npos)
 	{
@@ -133,9 +135,11 @@ void Session::do_write(std::string msg)
 	std::cout << "RESPONSE MSG: " <<
 		_proto_responses.response_msg()[_proto_responses.response_msg_size() - 1] << std::endl;
 
-	std::ofstream _out = std::ofstream("data.bin", std::ios_base::binary);
-	_proto_responses.SerializeToOstream(&_out);
-	_out.close();
+	std::fstream output = std::fstream("data.bin", std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
+	if (!_proto_responses.SerializeToOstream(&output))
+	{
+		std::cerr << "Failed to write responses data." << std::endl;
+	}
 
 	boost::asio::async_write(_sock, boost::asio::buffer(msg, msg.length()),
 		[this](boost::system::error_code error, std::size_t length)
