@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+package protobuf_pack;
+
+message Response
+{
+  repeated string response_msg = 1;
+}

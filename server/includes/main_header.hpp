@@ -22,7 +22,9 @@
 #include <memory>
 #include <map>
 
-#include "../sqlite/sqlite3.h"
+#include "../../sqlite/sqlite3.h"
+#include "../cmake-build-debug/responses.pb.h"
+#include "../cmake-build-debug/requests.pb.h"
 
 using namespace boost::asio;
 using boost::asio::ip::tcp;

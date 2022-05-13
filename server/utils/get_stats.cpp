@@ -1,5 +1,5 @@
-#include "Session.hpp"
-#include "tools.hpp"
+#include "../includes/Session.hpp"
+#include "../includes/statistic_tools.hpp"
 
 static int select_callback(void *p_data, int num_fields, char **p_fields, char **p_col_names)
 {
@@ -34,6 +34,8 @@ std::string Session::get_stats()
 {
 	// 0 - UUID // 1 - TIME // 2 - X // 3 - Y
 	std::vector<std::vector<std::string> > records = select_stmt("SELECT * FROM " + TABLE_NAME, _db);
+	if (records.empty())
+		return ("Статистика пустая");
 
 	/** Получаю колонку UUID строк */
 	std::vector<std::string> vctr_column = get_column(records, 0); // <---- cписок всех UUID

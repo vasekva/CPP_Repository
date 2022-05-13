@@ -12,9 +12,11 @@ class Server
 	private:
 		std::map<std::string, Session *> _sessions;
 		tcp::acceptor	_acceptor;
-		std::string		_cmd;
-		char	*_db_error;
-		sqlite3	*_db;
+//		std::string		_cmd;
+		char			*_db_error;
+		sqlite3			*_db;
+		protobuf_pack::Request _proto_requests;
+		protobuf_pack::Response _proto_responses;
 	public:
 		Server(boost::asio::io_context &context, std::uint16_t port);
 		~Server();

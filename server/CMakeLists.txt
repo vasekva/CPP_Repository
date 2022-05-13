@@ -40,13 +40,13 @@ else()
 
     protobuf_generate_cpp(
             PROTO_SRCS PROTO_HDRS
-            request.proto
-            response.proto
+            requests.proto
+            responses.proto
     )
 
     set(SOURCE_FILES
             main.cpp ${PROTO_SRCS} ${PROTO_HDRS}
-            parse_functions.cpp get_stats.cpp tools.cpp
+            utils/parse_functions.cpp utils/get_stats.cpp utils/statistic_tools.cpp
             ../sqlite/sqlite3.c
             Server.cpp Session.cpp
             )

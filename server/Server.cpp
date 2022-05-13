@@ -1,4 +1,4 @@
-#include "Server.hpp"
+#include "includes/Server.hpp"
 
 Server::Server(boost::asio::io_context &context, std::uint16_t port)
 	: _acceptor(context, tcp::endpoint(tcp::v4(), port)),
@@ -42,7 +42,7 @@ void Server::async_accept()
 			{
 				std::string uuid = boost::lexical_cast<std::string>(boost::uuids::random_generator()());
 				_sessions.insert(std::make_pair(endpoint,
-					new Session(std::move(sock), uuid, _db, _db_error)));
+					new Session(std::move(sock), uuid, _db, _proto_requests, _proto_responses)));
 				_sessions[endpoint]->start();
 			}
 			else

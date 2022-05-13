@@ -1,11 +1,15 @@
-#include "Session.hpp"
+#include "includes/Session.hpp"
 
-Session::Session(tcp::socket sock, std::string uuid, sqlite3 *db_ptr, char *error)
+Session::Session(tcp::socket sock, std::string uuid, sqlite3 *db_ptr,
+	protobuf_pack::Request &requests, protobuf_pack::Response &responses)
 		:	_sock(std::move(sock)),
 			 _uuid(uuid),
 			 _db(db_ptr),
-			 _db_error(error)
-{}
+			 _proto_requests(requests),
+			 _proto_responses(responses)
+{
+	_db_error = nullptr;
+}
 
 Session::~Session(void) {}
 
@@ -24,13 +28,25 @@ std::string Session::get_uuid(void) const
  * 1) make_insert_msg конструирует сообщение для вставки данных в бд
  * 2) полученная команда подается в sqlite3_exec()
  *
- * 3) НЕ СДЕЛАНО - вывод статистики
+ * 3) Конструирует сообщение статистики для клиента путем вызова
+ * get_stats() и отправляет сообщение клиенту, закрывая соединение
  * */
 bool Session::make_sql_exec(void)
 {
 	boost::system::error_code error;
 	std::string data = _data;
 	clear_eof(data);
+
+	/** сериализация */ //TODO: сериализация
+	_proto_requests.add_request_msg(data);
+
+	// TODO: удалить
+	std::cout << "REQUEST MSG: "
+		<< _proto_requests.request_msg()[_proto_requests.request_msg_size() - 1] << std::endl;
+
+	std::ofstream _out = std::ofstream("data.bin", std::ios_base::binary);
+	_proto_requests.SerializeToOstream(&_out);
+	_out.close();
 
 	if (data.find("--statistic") == std::string::npos)
 	{
@@ -111,6 +127,16 @@ void Session::do_read(void)
 
 void Session::do_write(std::string msg)
 {
+	/** сериализация */ //TODO: сериализация
+	_proto_responses.add_response_msg(msg);
+	// TODO: удалить
+	std::cout << "RESPONSE MSG: " <<
+		_proto_responses.response_msg()[_proto_responses.response_msg_size() - 1] << std::endl;
+
+	std::ofstream _out = std::ofstream("data.bin", std::ios_base::binary);
+	_proto_responses.SerializeToOstream(&_out);
+	_out.close();
+
 	boost::asio::async_write(_sock, boost::asio::buffer(msg, msg.length()),
 		[this](boost::system::error_code error, std::size_t length)
 		{
