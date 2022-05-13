@@ -33,27 +33,29 @@
 #### 1) Измените пути до ваших библиотек ***boost*** и ***protobuf*** CMakeLists.txt файлах директорий client/ и server/ в зависимости от вашей операционной системы 
 > ОС: MacOS или Windows ( ⚠️ работоспособность на Linux не проверена)
 
-<img src="./markdown_imgs/cmake.png" width=50% height=50%/>
+<img src="./markdown_imgs/cmake.png" width=70% height=70%/>
 
 [//]: # (![CMAKE]&#40;./markdown_imgs/cmake.png&#41;)
 
 ### Дополнение для Windows:
 >в файле server/main_header.hpp уберите комментарий этих строк:
 
-<img src="./markdown_imgs/win_help.png" width=25% height=25%/>
+<img src="./markdown_imgs/win_help.png" width=45% height=45%/>
 
 [//]: # (![WIN]&#40;./markdown_imgs/win_help.png&#41;)
 
 #### 2) В заголовочном файле /server/db.hpp Измените название базы данных и таблицы на ваше усмотрение и удобство
 
-<img src="./markdown_imgs/db_img.png" width=50% height=50%/>
+<img src="./markdown_imgs/db_img.png" width=70% height=70%/>
 
 [//]: # (![DB_CNF]&#40;./markdown_imgs/db_img.png&#41;)
 
 #### 3) Добавьте программные аргументы для клиента(127.0.0.1 и порт подключения) и сервера(порт прослушивания)
 
-<img src="./markdown_imgs/arg_1.png" width=25% height=25%/>
-<img src="./markdown_imgs/arg_0.png" width=16% height=20%/>
+<p>
+    <img src="./markdown_imgs/arg_1.png" width=45% height=45%/>
+    <img src="./markdown_imgs/arg_0.png" width=30% height=40%/>
+</p>
 
 [//]: # (![ARG_0]&#40;./markdown_imgs/arg_1.png&#41; )
 
