@@ -11,14 +11,14 @@
  * порядке друг относительно друга, что и в первоначальном массиве.
  * */
 
-std::vector<std::string> countFreq(const std::vector<std::string> &arr)
+std::vector<std::string> get_odd_repeated(const std::vector<std::string> &arr)
 {
     std::vector<std::string> newVector;
     std::unordered_map<std::string, int> map;
- 
+
     for (int i = 0; i < arr.size(); i++)
 		map[arr[i]]++;
- 
+
     for (int i = 0; i < arr.size(); i++)
     {
         if (map[arr[i]] != -1 && map[arr[i]] % 2 != 0)
@@ -34,7 +34,7 @@ int main()
 {
     std::vector<std::string> arr = { "one", "two", "three", "three", "two", "three", "what", "1"};
     
-    std::vector<std::string> newVec = countFreq(arr);
+    std::vector<std::string> newVec = get_odd_repeated(arr);
     
     for (auto s : newVec)
         std::cout << s << " ";
