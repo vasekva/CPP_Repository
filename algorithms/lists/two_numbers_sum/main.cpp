@@ -25,7 +25,7 @@
 class Solution
 {
     public:
-        ListNode* addTwoNumbers(ListNode* l1, ListNode* l2)
+        ListNode* two_number_sum(ListNode* l1, ListNode* l2)
         {
             ListNode *node = new ListNode();
             ListNode *curr = node;
