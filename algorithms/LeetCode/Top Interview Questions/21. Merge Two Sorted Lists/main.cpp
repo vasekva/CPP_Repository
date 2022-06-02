@@ -44,10 +44,6 @@ public:
 		}
 	}
 
-	void init(ListNode **list, int val)
-	{
-	}
-
 	ListNode* merge_two_lists(ListNode *list1, ListNode *list2)
 	{
 		ListNode *new_list = nullptr;
