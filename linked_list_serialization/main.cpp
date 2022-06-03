@@ -1,8 +1,11 @@
 //#include "Data.hpp"
 
-#include "iostream"
-#include "fstream"
-#include "sstream"
+#include <iostream>
+#include <fstream>
+#include <sstream>
+
+#include <time.h>
+#include <random>
 
 class ListNode
 {
@@ -22,7 +25,7 @@ class ListNode
 		~ListNode() {}
 };
 
-void recursion_serialize(ListNode *ptr, std::ofstream &out_file)
+void recursion_serialize(const ListNode *const ptr, std::ofstream &out_file)
 {
 	std::stringstream str_stream;
 	std::string str;
@@ -42,14 +45,14 @@ void recursion_serialize(ListNode *ptr, std::ofstream &out_file)
 		str_stream << "nullptr/";
 	}
 	str_stream >> str;
+
 	recursion_serialize(ptr->m_next, out_file); // recursion
 
 	str.append("\n"); // data delimeter
-
 	out_file << str;
 }
 
-bool serialize_obj(ListNode *ptr, const std::string &file_name)
+bool serialize_obj(const ListNode *const ptr, const std::string &file_name)
 {
 	std::ofstream out_file("some_file.txt");
 	if (!out_file)
@@ -73,7 +76,8 @@ ListNode *deserialize(std::ifstream &in_file)
 	return (new_data);
 }
 
-void create_list(ListNode **tmp_ptr, ListNode **main_obj, size_t N)
+/** Creating a linked list with size N */
+void create_list(ListNode **tmp_ptr, ListNode **main_obj, const size_t &N)
 {
 	std::string name = "Node_#";
 
@@ -92,22 +96,62 @@ void create_list(ListNode **tmp_ptr, ListNode **main_obj, size_t N)
 	}
 }
 
+/**
+ * Creating a new pointer from
+ * a node № ind_from to
+ * a node № ind_to
+ * */
+bool	make_ptr(ListNode *list, const size_t &ind_from, const size_t &ind_to)
+{
+	ListNode *from = list;
+	ListNode *to = list;
+
+	for (size_t i = 0; i != ind_from; i++)
+	{
+		if (from->m_next == nullptr)
+			return (false);
+		from = from->m_next;
+	}
+	for (size_t i = 0; i != ind_to; i++)
+	{
+		if (to->m_next == nullptr)
+			return (false);
+		to = to->m_next;
+	}
+
+	from->m_rand = to;
+	return (true);
+}
+
 int main(void)
 {
-	ListNode		*main_object;
-	ListNode		*deserialized_obj;
+	ListNode	*main_object = nullptr;
+	ListNode	*deserialized_obj = nullptr;
+	ListNode	*tmp_ptr = nullptr;
 
-	/**
-	 * Creating a linkedList with N size
-	 */
-	ListNode *tmp_ptr;
-	create_list(&tmp_ptr, &main_object, 11);
 
-	/**
-	 * Opening a file for writing to it
-	 */
+	/** Creating a linkedList with N size */
+	const size_t list_size = 5;
+	create_list(&tmp_ptr, &main_object, list_size);
+
+	/** Creating additional pointers to another Nodes for other ones */
+	if (make_ptr(main_object, 1, 1))
+		std::cout << "Created an addition pointer from 1 to 1\n";
+	if (make_ptr(main_object, 2, 4))
+		std::cout << "Created an addition pointer from 2 to 4\n";
+	if (make_ptr(main_object, 4, 0))
+		std::cout << "Created an addition pointer from 4 to 0\n";
+
+
+	/** Serialization */
 	const std::string file_name = "some_file.txt";
-	serialize_obj(main_object, file_name);
+	if (!serialize_obj(main_object, file_name))
+	{
+		std::cerr << "serialize error!" << std::endl;
+		exit(-1);
+	}
+
+
 
 	/**
 	 * Opening a file for reading from it
@@ -130,7 +174,6 @@ int main(void)
 		exit(-1);
 	}
 
-	std::cout << "Addr after serialization: " << deserialized_obj << std::endl;
 	std::cout << "Its attributes: " << std::endl;
 
 	std::cout << deserialized_obj->m_data;
