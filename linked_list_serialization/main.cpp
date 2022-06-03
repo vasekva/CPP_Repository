@@ -25,19 +25,33 @@ class ListNode
 		~ListNode() {}
 };
 
-void recursion_serialize(const ListNode *const ptr, std::ofstream &out_file)
+unsigned long long hex_to_digit(const ListNode *const ptr)
 {
 	std::stringstream str_stream;
-	std::string str;
+	unsigned long long digit = 0;
+
+	str_stream << std::hex << ptr; // from ptr to hex to binary stream
+	str_stream >> digit; // from binary to u_longlong
+
+	return (digit);
+}
+
+void recursion_serialize(const ListNode *const ptr, size_t &ind, std::ofstream &out_file)
+{
+	std::stringstream	str_stream;
+	std::string 		str;
 
 	if (ptr == nullptr)
 		return;
 
-	str_stream << ptr << "/"; // param delimeter
+	/** '/' - param delimeter */
+	str_stream << ind++ << "/";
+	str_stream << hex_to_digit(ptr) << "/"; // from het to u_longlong and to serialization stream
 	str_stream << ptr->m_data << "/";
+
 	if (ptr->m_rand)
 	{
-		str_stream << ptr->m_rand << "/";
+		str_stream << hex_to_digit(ptr->m_rand) << "/";
 		str_stream >> str;
 	}
 	else
@@ -46,7 +60,7 @@ void recursion_serialize(const ListNode *const ptr, std::ofstream &out_file)
 	}
 	str_stream >> str;
 
-	recursion_serialize(ptr->m_next, out_file); // recursion
+	recursion_serialize(ptr->m_next, ind, out_file); // recursion
 
 	str.append("\n"); // data delimeter
 	out_file << str;
@@ -54,13 +68,15 @@ void recursion_serialize(const ListNode *const ptr, std::ofstream &out_file)
 
 bool serialize_obj(const ListNode *const ptr, const std::string &file_name)
 {
+	size_t ind = 0;
+
 	std::ofstream out_file("some_file.txt");
 	if (!out_file)
 	{
 		puts("Couldn't open the file");
 		return (false);
 	}
-	recursion_serialize(ptr, out_file); // рекурсивная сериализация списка
+	recursion_serialize(ptr, ind, out_file); // рекурсивная сериализация списка
 	out_file.close();
 	return (true);
 }
@@ -79,18 +95,18 @@ ListNode *deserialize(std::ifstream &in_file)
 /** Creating a linked list with size N */
 void create_list(ListNode **tmp_ptr, ListNode **main_obj, const size_t &N)
 {
-	std::string name = "Node_#";
+	std::string node_data = "some_data";
 
 	for (int i = 0; i < N; i++)
 	{
 		if (i == 0)
 		{
-			*tmp_ptr = new ListNode(name + (std::to_string(i)));
+			*tmp_ptr = new ListNode(node_data + (std::to_string(i)));
 			*main_obj = *tmp_ptr;
 		}
 		else
 		{
-			(*tmp_ptr)->m_next = new ListNode(name + std::to_string(i));
+			(*tmp_ptr)->m_next = new ListNode(node_data + std::to_string(i));
 			(*tmp_ptr) = (*tmp_ptr)->m_next;
 		}
 	}
