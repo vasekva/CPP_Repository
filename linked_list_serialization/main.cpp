@@ -47,7 +47,7 @@ void recursion_serialize(const ListNode *const ptr, size_t &ind, std::ofstream &
 	/** '/' - param delimeter */
 	str_stream << ind++ << "/";
 	str_stream << hex_to_digit(ptr) << "/"; // from het to u_longlong and to serialization stream
-	str_stream << ptr->m_data << "/";
+	str_stream << "data=" << ptr->m_data << "/";
 
 	if (ptr->m_rand)
 	{
@@ -66,7 +66,7 @@ void recursion_serialize(const ListNode *const ptr, size_t &ind, std::ofstream &
 	out_file << str;
 }
 
-bool serialize_obj(const ListNode *const ptr, const std::string &file_name)
+bool serialize_list(const ListNode *const ptr, const std::string &file_name)
 {
 	size_t ind = 0;
 
@@ -81,14 +81,46 @@ bool serialize_obj(const ListNode *const ptr, const std::string &file_name)
 	return (true);
 }
 
-ListNode *deserialize(std::ifstream &in_file)
+
+void recursion_deserialize(ListNode **ptr, ListNode **next, std::ifstream &in_file)
+{
+	std::string line;
+	std::string node_data;
+
+	if (in_file.eof())
+	{
+		return;
+	}
+	in_file >> line;
+	if (line.empty())
+		return;
+
+	/** Searching for the start and end positions of node_data */
+	size_t data_ind = line.find("data=");
+	size_t slash_ind = std::string(&line[data_ind]).find("/");
+	node_data = line.substr(data_ind, slash_ind);
+
+	/** deserialization */
+	(*ptr) = new ListNode(node_data);
+	if (next && (*next) != nullptr)
+	{
+		(*ptr)->m_next = *next;
+	}
+	recursion_deserialize(&(*ptr)->m_prev, ptr, in_file);
+}
+
+ListNode *deserialize_list(void)
 {
 	ListNode *new_data = nullptr;
-	std::string name;
+	std::ifstream in_file("some_file.txt");
+	if (!in_file)
+	{
+		puts("Couldn't open the file");
+		return (nullptr);
+	}
+	recursion_deserialize(&new_data, nullptr, in_file);
 
-	in_file >> name;
-	new_data = new ListNode(name);
-
+	in_file.close();
 	return (new_data);
 }
 
@@ -106,7 +138,9 @@ void create_list(ListNode **tmp_ptr, ListNode **main_obj, const size_t &N)
 		}
 		else
 		{
+			//TODO: проверить корректность создания двусвязного списка
 			(*tmp_ptr)->m_next = new ListNode(node_data + std::to_string(i));
+			(*tmp_ptr)->m_next->m_prev = (*tmp_ptr);
 			(*tmp_ptr) = (*tmp_ptr)->m_next;
 		}
 	}
@@ -146,8 +180,8 @@ int main(void)
 	ListNode	*tmp_ptr = nullptr;
 
 
-	/** Creating a linkedList with N size */
 	const size_t list_size = 5;
+	/** Creating a linkedList with N size */
 	create_list(&tmp_ptr, &main_object, list_size);
 
 	/** Creating additional pointers to another Nodes for other ones */
@@ -161,39 +195,53 @@ int main(void)
 
 	/** Serialization */
 	const std::string file_name = "some_file.txt";
-	if (!serialize_obj(main_object, file_name))
+	if (!serialize_list(main_object, file_name))
 	{
 		std::cerr << "serialize error!" << std::endl;
 		exit(-1);
 	}
 
-
-
-	/**
-	 * Opening a file for reading from it
-	 */
-	std::ifstream in_file("some_file.txt");
-	if (!in_file)
+	/** Deserialization */
+	deserialized_obj = deserialize_list();
+	if (deserialized_obj == nullptr)
 	{
-		puts("Couldn't open the file");
-		return (-1);
+		std::cerr << "deserialize error!" << std::endl;
+		exit(1);
 	}
-	deserialized_obj = deserialize(in_file);
-	in_file.close();
 
-	/**
-	 * Checking and printing deserialized data
-	 */
+/**
+==========================================
+==  Printing of deserialization result  ==
+==========================================
+*/
+	/** Checking and printing deserialized data */
 	if (deserialized_obj == nullptr)
 	{
 		std::cout << "ERROR" << std::endl;
 		exit(-1);
 	}
-
 	std::cout << "Its attributes: " << std::endl;
+	// TODO: удалить
+	if (deserialized_obj->m_prev == nullptr)
+		std::cout << "Prev == nullptr\n";
+	if (deserialized_obj->m_next == nullptr)
+		std::cout << "Next == nullptr\n";
 
-	std::cout << deserialized_obj->m_data;
 
+
+	while (deserialized_obj->m_prev)
+	{
+		std::cout << deserialized_obj->m_data << std::endl;
+		deserialized_obj = deserialized_obj->m_prev;
+	}
+	std::cout << deserialized_obj->m_data << std::endl;
+	std::cout << "==================" << std::endl;
+	while (deserialized_obj->m_next)
+	{
+		std::cout << deserialized_obj->m_data << std::endl;
+		deserialized_obj = deserialized_obj->m_next;
+	}
+	std::cout << deserialized_obj->m_data << std::endl;
 
 // TODO: сделать удаление всего списка
 //  delete main_object;
