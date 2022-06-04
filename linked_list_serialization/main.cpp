@@ -7,6 +7,8 @@
 #include <time.h>
 #include <random>
 
+#include <map>
+
 class ListNode
 {
 	public:
@@ -36,6 +38,8 @@ unsigned long long hex_to_digit(const ListNode *const ptr)
 	return (digit);
 }
 
+
+
 void recursion_serialize(const ListNode *const ptr, size_t &ind, std::ofstream &out_file)
 {
 	std::stringstream	str_stream;
@@ -45,18 +49,18 @@ void recursion_serialize(const ListNode *const ptr, size_t &ind, std::ofstream &
 		return;
 
 	/** '/' - param delimeter */
-	str_stream << ind++ << "/";
 	str_stream << hex_to_digit(ptr) << "/"; // from het to u_longlong and to serialization stream
+	str_stream << ind++ << "/";
 	str_stream << "data=" << ptr->m_data << "/";
 
 	if (ptr->m_rand)
 	{
-		str_stream << hex_to_digit(ptr->m_rand) << "/";
+		str_stream << hex_to_digit(ptr->m_rand);
 		str_stream >> str;
 	}
 	else
 	{
-		str_stream << "nullptr/";
+		str_stream << "nullptr";
 	}
 	str_stream >> str;
 
@@ -97,6 +101,12 @@ void recursion_deserialize(ListNode **ptr, ListNode **next, std::ifstream &in_fi
 
 	/** Searching for the start and end positions of node_data */
 	size_t data_ind = line.find("data=");
+	if (data_ind == std::string::npos)
+	{
+		std::cerr << "Couldn't find a node data!" << std::endl;
+		exit(1);
+	}
+
 	size_t slash_ind = std::string(&line[data_ind]).find("/");
 	node_data = line.substr(data_ind, slash_ind);
 
@@ -111,7 +121,9 @@ void recursion_deserialize(ListNode **ptr, ListNode **next, std::ifstream &in_fi
 
 ListNode *deserialize_list(void)
 {
+	std::map<unsigned long long, std::pair<int, std::string>> nodes_info;
 	ListNode *new_data = nullptr;
+
 	std::ifstream in_file("some_file.txt");
 	if (!in_file)
 	{
@@ -119,8 +131,73 @@ ListNode *deserialize_list(void)
 		return (nullptr);
 	}
 	recursion_deserialize(&new_data, nullptr, in_file);
-
 	in_file.close();
+
+	std::ifstream file("some_file.txt");
+	std::string line;
+
+/**
+===================================
+==  filling the map with values  ==
+===================================
+*/
+
+	unsigned long long key = 0;
+	std::pair<int, std::string> value;
+	int delimeter = 0;
+	while (!file.eof())
+	{
+		file >> line;
+		if (line.empty())
+			break;
+
+		delimeter = line.find("/");
+		key = atol(line.substr(0, delimeter).c_str());
+		if (key == 0)
+			break;
+		line.erase(0, delimeter + 1);
+
+		delimeter = line.find("/");
+		value = std::make_pair(atoi(line.substr(0, delimeter).c_str()),
+			std::string(&line[delimeter + 1]));
+		nodes_info.emplace(key, value);
+	}
+	file.close();
+
+
+	std::map<unsigned long long, std::pair<int, std::string>>::const_iterator it = nodes_info.cbegin();
+	unsigned long long map_key = 0;
+	std::string address;
+	size_t		pair_key;
+	std::string pair_value;
+	for (; it != nodes_info.end(); ++it)
+	{
+		/** если у звена есть ссылка на другое звено */
+		if (it->second.second.find("nullptr") == std::string::npos)
+		{
+			map_key = it->first; // сохраняем ключ от nodes_info
+			pair_value = it->second.second; // сохраняем значение пары
+			pair_key = it->second.first; // сохраняем ключ пары
+			address = pair_value.substr(pair_value.find_last_of("/") + 1); // сохраняем адресс другого звена
+			pair_value += '-';
+			size_t ind = nodes_info.at(atol(address.c_str())).first; // получаем индекс звена
+			pair_value.append(std::to_string(ind));
+
+			// заменяем значение в map (добавляем значение индекса звена, адрес которого лежит в m_rand)
+			nodes_info.erase(map_key);
+			std::cout << nodes_info.size() << std::endl;
+			nodes_info.emplace(map_key, std::make_pair(pair_key, pair_value));
+			std::cout << nodes_info.size() << std::endl;
+		}
+	}
+
+	it = nodes_info.cbegin();
+	for (; it != nodes_info.end(); ++it)
+	{
+		std::cout << it->first << ":(" <<
+				  it->second.first << ", " << it->second.second << ")" << std::endl;
+	}
+
 	return (new_data);
 }
 
@@ -220,13 +297,16 @@ int main(void)
 		std::cout << "ERROR" << std::endl;
 		exit(-1);
 	}
+
+/*
+
+
 	std::cout << "Its attributes: " << std::endl;
 	// TODO: удалить
 	if (deserialized_obj->m_prev == nullptr)
 		std::cout << "Prev == nullptr\n";
 	if (deserialized_obj->m_next == nullptr)
 		std::cout << "Next == nullptr\n";
-
 
 
 	while (deserialized_obj->m_prev)
@@ -242,7 +322,7 @@ int main(void)
 		deserialized_obj = deserialized_obj->m_next;
 	}
 	std::cout << deserialized_obj->m_data << std::endl;
-
+*/
 // TODO: сделать удаление всего списка
 //  delete main_object;
 //	 delete deserialized_obj;
