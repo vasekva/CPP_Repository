@@ -119,9 +119,47 @@ void recursion_deserialize(ListNode **ptr, ListNode **next, std::ifstream &in_fi
 	recursion_deserialize(&(*ptr)->m_prev, ptr, in_file);
 }
 
+
+// вектор расположен в убывающем порядке адресов!!!
+/**
+ * бинарный поиск индекса звена(индекс находится в строке информации о звене)
+ * из списка информации всех звеньев
+ * */
+size_t find_ind_of_node(const std::vector<std::string> &nodes_info, const unsigned long long &desired_addr)
+{
+	size_t pos;
+	size_t low = 0, high = nodes_info.size() - 1, mid = (low + high) / 2;
+
+	unsigned long long curr_addr = 0; // an address of the node itself
+//	unsigned long long rand_addr = 0; // an address of the additional node's pointer
+
+	while (low <= high)
+	{
+		curr_addr = std::atol(nodes_info[mid].c_str());
+
+		if (desired_addr == curr_addr)
+			break;
+		else if (desired_addr > curr_addr)
+			high = mid - 1;
+		else
+			low = mid + 1;
+
+		mid = (high + low) / 2;
+	}
+
+	size_t fst_slash = nodes_info[mid].find("/");
+	// длина числа, вычисляемая путем нахождения индекса второго слеша с позиции первого
+	size_t num_len = std::string(&nodes_info[mid][fst_slash + 1]).find("/");
+
+	//TODO:: могут быть погрехи в вытаскивании индекса из строки
+	pos = atoi(nodes_info[mid].substr(fst_slash + 1, num_len).c_str());
+
+	return (pos);
+}
+
 ListNode *deserialize_list(void)
 {
-	std::map<unsigned long long, std::pair<int, std::string>> nodes_info;
+//	std::map<unsigned long long, std::pair<int, std::string>> nodes_info;
 	ListNode *new_data = nullptr;
 
 	std::ifstream in_file("some_file.txt");
@@ -133,70 +171,87 @@ ListNode *deserialize_list(void)
 	recursion_deserialize(&new_data, nullptr, in_file);
 	in_file.close();
 
-	std::ifstream file("some_file.txt");
-	std::string line;
 
 /**
 ===================================
 ==  filling the map with values  ==
 ===================================
 */
+	std::ifstream file("some_file.txt");
+	std::string line;
+	std::vector<std::string> nodes_info;
 
-	unsigned long long key = 0;
-	std::pair<int, std::string> value;
-	int delimeter = 0;
-	while (!file.eof())
+	while (true)
 	{
 		file >> line;
-		if (line.empty())
+		if (file.eof() || line.empty())
 			break;
-
-		delimeter = line.find("/");
-		key = atol(line.substr(0, delimeter).c_str());
-		if (key == 0)
-			break;
-		line.erase(0, delimeter + 1);
-
-		delimeter = line.find("/");
-		value = std::make_pair(atoi(line.substr(0, delimeter).c_str()),
-			std::string(&line[delimeter + 1]));
-		nodes_info.emplace(key, value);
-	}
-	file.close();
-
-
-	std::map<unsigned long long, std::pair<int, std::string>>::const_iterator it = nodes_info.cbegin();
-	unsigned long long map_key = 0;
-	std::string address;
-	size_t		pair_key;
-	std::string pair_value;
-	for (; it != nodes_info.end(); ++it)
-	{
-		/** если у звена есть ссылка на другое звено */
-		if (it->second.second.find("nullptr") == std::string::npos)
-		{
-			map_key = it->first; // сохраняем ключ от nodes_info
-			pair_value = it->second.second; // сохраняем значение пары
-			pair_key = it->second.first; // сохраняем ключ пары
-			address = pair_value.substr(pair_value.find_last_of("/") + 1); // сохраняем адресс другого звена
-			pair_value += '-';
-			size_t ind = nodes_info.at(atol(address.c_str())).first; // получаем индекс звена
-			pair_value.append(std::to_string(ind));
-
-			// заменяем значение в map (добавляем значение индекса звена, адрес которого лежит в m_rand)
-			nodes_info.erase(map_key);
-			std::cout << nodes_info.size() << std::endl;
-			nodes_info.emplace(map_key, std::make_pair(pair_key, pair_value));
-			std::cout << nodes_info.size() << std::endl;
-		}
+		nodes_info.push_back(line);
 	}
 
-	it = nodes_info.cbegin();
-	for (; it != nodes_info.end(); ++it)
-	{
-		std::cout << it->first << ":(" <<
-				  it->second.first << ", " << it->second.second << ")" << std::endl;
-	}
+	for (auto str : nodes_info)
+		std::cout << str << std::endl;
+
+	size_t lst_slash = nodes_info[0].find_last_of("/");
+	unsigned long long addr = atol(std::string(&nodes_info[0][lst_slash + 1]).c_str());
+	find_ind_of_node(nodes_info, addr); // TODO: удалить
+
+
+//	unsigned long long key = 0;
+//	std::pair<int, std::string> value;
+//	int delimeter = 0;
+//	while (!file.eof())
+//	{
+//		file >> line;
+//		if (line.empty())
+//			break;
+//
+//		delimeter = line.find("/");
+//		key = atol(line.substr(0, delimeter).c_str());
+//		if (key == 0)
+//			break;
+//		line.erase(0, delimeter + 1);
+//
+//		delimeter = line.find("/");
+//		value = std::make_pair(atoi(line.substr(0, delimeter).c_str()),
+//			std::string(&line[delimeter + 1]));
+//		nodes_info.emplace(key, value);
+//	}
+//	file.close();
+//
+//
+//	std::map<unsigned long long, std::pair<int, std::string>>::const_iterator it = nodes_info.cbegin();
+//	unsigned long long map_key = 0;
+//	std::string address;
+//	size_t		pair_key;
+//	std::string pair_value;
+//	for (; it != nodes_info.end(); ++it)
+//	{
+//		/** если у звена есть ссылка на другое звено */
+//		if (it->second.second.find("nullptr") == std::string::npos)
+//		{
+//			map_key = it->first; // сохраняем ключ от nodes_info
+//			pair_value = it->second.second; // сохраняем значение пары
+//			pair_key = it->second.first; // сохраняем ключ пары
+//			address = pair_value.substr(pair_value.find_last_of("/") + 1); // сохраняем адресс другого звена
+//			pair_value += '-';
+//			size_t ind = nodes_info.at(atol(address.c_str())).first; // получаем индекс звена
+//			pair_value.append(std::to_string(ind));
+//
+//			// заменяем значение в map (добавляем значение индекса звена, адрес которого лежит в m_rand)
+//			nodes_info.erase(map_key);
+//			std::cout << nodes_info.size() << std::endl;
+//			nodes_info.emplace(map_key, std::make_pair(pair_key, pair_value));
+//			std::cout << nodes_info.size() << std::endl;
+//		}
+//	}
+//
+//	it = nodes_info.cbegin();
+//	for (; it != nodes_info.end(); ++it)
+//	{
+//		std::cout << it->first << ":(" <<
+//				  it->second.first << ", " << it->second.second << ")" << std::endl;
+//	}
 
 	return (new_data);
 }
