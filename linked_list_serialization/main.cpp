@@ -1,7 +1,7 @@
 //#include "Data.hpp"
 
 #include <iostream>
-#include <fstream>
+//#include <fstream>
 #include <sstream>
 
 #include <time.h>
@@ -9,82 +9,8 @@
 
 #include <map>
 
-class ListNode
-{
-	public:
-		ListNode	*m_prev;
-		ListNode	*m_next;
-		ListNode	*m_rand;
-		std::string m_data;
-
-		ListNode(std::string data)
-		{
-			this->m_prev = nullptr;
-			this->m_next = nullptr;
-			this->m_rand = nullptr;
-			this->m_data = data;
-		}
-		~ListNode() {}
-};
-
-unsigned long long hex_to_digit(const ListNode *const ptr)
-{
-	std::stringstream str_stream;
-	unsigned long long digit = 0;
-
-	str_stream << std::hex << ptr; // from ptr to hex to binary stream
-	str_stream >> digit; // from binary to u_longlong
-
-	return (digit);
-}
-
-
-
-void recursion_serialize(const ListNode *const ptr, size_t &ind, std::ofstream &out_file)
-{
-	std::stringstream	str_stream;
-	std::string 		str;
-
-	if (ptr == nullptr)
-		return;
-
-	/** '/' - param delimeter */
-	str_stream << hex_to_digit(ptr) << "/"; // from het to u_longlong and to serialization stream
-	str_stream << ind++ << "/";
-	str_stream << "data=" << ptr->m_data << "/";
-
-	if (ptr->m_rand)
-	{
-		str_stream << hex_to_digit(ptr->m_rand);
-		str_stream >> str;
-	}
-	else
-	{
-		str_stream << "nullptr";
-	}
-	str_stream >> str;
-
-	recursion_serialize(ptr->m_next, ind, out_file); // recursion
-
-	str.append("\n"); // data delimeter
-	out_file << str;
-}
-
-bool serialize_list(const ListNode *const ptr, const std::string &file_name)
-{
-	size_t ind = 0;
-
-	std::ofstream out_file("some_file.txt");
-	if (!out_file)
-	{
-		puts("Couldn't open the file");
-		return (false);
-	}
-	recursion_serialize(ptr, ind, out_file); // рекурсивная сериализация списка
-	out_file.close();
-	return (true);
-}
-
+#include "includes/ListRand.hpp"
+#include "includes/Serializator.hpp"
 
 void recursion_deserialize(ListNode **curr, ListNode **next,
 	std::map<unsigned long long, ListNode *> &nodes_dict, std::ifstream &in_file)
@@ -266,7 +192,7 @@ void create_list(ListNode **tmp_ptr, ListNode **main_obj, const size_t &N)
 {
 	std::string node_data = "some_data";
 
-	for (int i = 0; i < N; i++)
+	for (size_t i = 0; i < N; i++)
 	{
 		if (i == 0)
 		{
@@ -331,8 +257,9 @@ int main(void)
 
 
 	/** Serialization */
+	Serializator serializator = Serializator();
 	const std::string file_name = "some_file.txt";
-	if (!serialize_list(main_object, file_name))
+	if (!serializator.serialize_list(main_object, file_name))
 	{
 		std::cerr << "serialize error!" << std::endl;
 		exit(-1);
