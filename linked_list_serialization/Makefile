@@ -1,12 +1,12 @@
 NAME = run
 
-INCLUDES = -I ./includes
+INCLUDES = -I ./includes/
 
 CXX = clang++
 CXXFLAGS = -g -Wall -Wextra -Werror -std=c++14 $(INCLUDES)
 #CXXFLAGS = -g -std=c++14
 
-SRCS = main.cpp Serializator.cpp
+SRCS = main.cpp Serializator.cpp Deserializator.cpp
 
 F_NONE		= \033[37m
 F_BOLD		= \033[1m

@@ -1,6 +1,8 @@
 #ifndef LISTRAND_HPP
 #define LISTRAND_HPP
 
+#include <string>
+
 class ListNode
 {
 	public:

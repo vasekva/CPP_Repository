@@ -1,9 +1,11 @@
 #ifndef SERIALIZATOR_HPP
 #define SERIALIZATOR_HPP
 
-#include "main_libs.hpp"
+#include "ListRand.hpp"
 
-class ListNode;
+#include <fstream>
+#include <sstream>
+#include <iostream>
 
 class Serializator
 {
