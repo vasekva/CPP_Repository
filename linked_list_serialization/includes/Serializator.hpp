@@ -7,15 +7,16 @@
 #include <sstream>
 #include <iostream>
 
+class ListNode;
+
 class Serializator
 {
 	public:
 		Serializator();
 		~Serializator();
-		bool serialize_list(const ListNode *const ptr, std::ofstream &out_file);
+		bool serialize_list(ListNode *const ptr, std::ofstream &out_file);
 	private:
-		void recursion_serialize(const ListNode *const ptr, size_t &ind, std::ofstream &out_file);
-		unsigned long long hex_to_digit(const ListNode *const ptr);
+		std::string hex_to_str(const ListNode *const ptr);
 };
 
 #endif

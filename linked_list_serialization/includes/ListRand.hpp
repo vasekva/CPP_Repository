@@ -4,6 +4,12 @@
 #include <string>
 #include <fstream>
 
+#include "Deserializator.hpp"
+#include "Serializator.hpp"
+#include "Colors.hpp"
+
+class Serializator;
+
 class ListNode
 {
 	public:
@@ -29,15 +35,13 @@ class ListRand
 		ListNode *Tail;
 		int Count;
 
-		void Serialize(std::ofstream &out_file)
-		{
+		ListRand(ListNode *const fst_ptr, ListNode *const lst_ptr);
+		~ListRand();
 
-		}
-
-		void Deserialize(std::ifstream &in_file)
-		{
-
-		}
+		void Serialize(std::ofstream &out_file);
+		void Deserialize(std::ifstream &in_file);
+	private:
+		ListRand();
 };
 
 #endif

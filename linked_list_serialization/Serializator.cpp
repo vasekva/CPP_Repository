@@ -4,51 +4,55 @@
 Serializator::Serializator() {}
 Serializator::~Serializator() {}
 
-unsigned long long Serializator::hex_to_digit(const ListNode *const ptr)
+//unsigned long long Serializator::hex_to_digit(const ListNode *const ptr)
+//{
+//	std::stringstream str_stream;
+//	unsigned long long digit = 0;
+//
+//	str_stream << std::hex << ptr; // from ptr to hex to binary stream
+//	str_stream >> digit; // from binary to u_longlong
+//
+//	return (digit);
+//}
+
+std::string Serializator::hex_to_str(const ListNode *const ptr)
 {
-	std::stringstream str_stream;
-	unsigned long long digit = 0;
+	size_t				digit_addr;
+	std::stringstream	str_stream;
 
 	str_stream << std::hex << ptr; // from ptr to hex to binary stream
-	str_stream >> digit; // from binary to u_longlong
+	str_stream >> digit_addr; // from binary to u_longlong
 
-	return (digit);
+	return (std::to_string(digit_addr));
 }
 
-void Serializator::recursion_serialize(const ListNode *const ptr, size_t &ind, std::ofstream &out_file)
-{
-	std::stringstream	str_stream;
-	std::string 		str;
-
-	if (ptr == nullptr)
-		return;
-
-	/** '/' - param delimeter */
-	str_stream << hex_to_digit(ptr) << "/"; // from het to u_longlong and to serialization stream
-	str_stream << ind++ << "/";
-	str_stream << "data=" << ptr->m_data << "/";
-
-	if (ptr->m_rand)
-	{
-		str_stream << hex_to_digit(ptr->m_rand);
-		str_stream >> str;
-	}
-	else
-	{
-		str_stream << "nullptr";
-	}
-	str_stream >> str;
-
-	recursion_serialize(ptr->m_next, ind, out_file); // recursion
-
-	str.append("\n"); // data delimeter
-	out_file << str;
-}
-
-bool Serializator::serialize_list(const ListNode *const ptr, std::ofstream &out_file)
+bool Serializator::serialize_list(ListNode *const ptr, std::ofstream &out_file)
 {
 	size_t ind = 0;
+	ListNode *tmp_ptr = ptr;
 
-	recursion_serialize(ptr, ind, out_file); // рекурсивная сериализация списка
+	std::string line;
+	while (tmp_ptr)
+	{
+		/** '/' - param delimeter */
+		line = hex_to_str(tmp_ptr);
+		line += "/";
+		line += std::to_string(ind++);
+		line += "/";
+		line += "data=" + tmp_ptr->m_data;
+		line += "/";
+
+		if (tmp_ptr->m_rand)
+		{
+			line += hex_to_str(tmp_ptr->m_rand);
+		}
+		else
+		{
+			line += "nullptr";
+		}
+		line.append("\n"); // data delimeter
+		out_file << line;
+		tmp_ptr = tmp_ptr->m_next;
+	}
 	return (true);
 }

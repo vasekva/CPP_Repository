@@ -20,7 +20,7 @@ std::string Deserializator::get_node_data_from_line(const std::string &line)
 	std::string node_data;
 
 	/** Searching for the start and end positions of a node_data line */
-	size_t data_ind = line.find("data=");
+	size_t data_ind = line.find("data=") + 5;
 	if (data_ind == std::string::npos)
 	{
 		std::cerr << "Incorrect format of serialization!" << std::endl;
@@ -65,57 +65,73 @@ bool Deserializator::add_new_item_to_nodes_info(std::map<std::string, std::strin
 	if (addr_from.empty() || addr_to.empty())
 		return (false);
 
-	//TODO: удалить
-	std::cout << addr_from << ":" << addr_to << std::endl;
+//	//TODO: удалить
+//	std::cout << addr_from << ":" << addr_to << std::endl;
 
 	nodes_info.emplace(addr_from, addr_to);
 	return (true);
 }
 
-void Deserializator::recursion_deserialize(ListNode **curr, ListNode **next,
+void Deserializator::deserialize(ListNode **curr,
+	ListNode *tail_ptr,
 	std::map<unsigned long long, ListNode *> &nodes_map,
 	std::map<std::string, std::string> &nodes_info,
-	std::ifstream &in_file)
+	std::ifstream &in_file,
+	int &count)
 {
 	std::string line;
 	std::string node_data;
 
-	if (in_file.eof())
-		return;
+	ListNode *curr_ptr;
+	ListNode *tmp_ptr;
 
-	in_file >> line;
-	if (line.empty())
-		return;
-
-	node_data = get_node_data_from_line(line);
-
-	/** deserialization */
-	(*curr) = new ListNode(node_data);
-
-	size_t slash_ind = line.find("/");  //TODO: check it if there's an error
-	if (slash_ind == std::string::npos)
+//	size_t size = 0;
+	while (true)
 	{
-		std::cerr << "Incorrect format of serialization!" << std::endl;
-		std::cerr << "Couldn't find a slash after node data!" << std::endl;
-		exit(1);
-	}
-	/**
-	 * key - address of the node before serialization,
-	 * value - ptr to the new deserialized node
-	 * */
-	nodes_map.emplace(atol(line.substr(0, slash_ind).c_str()), *curr);
-	/** adds information to nodes_info about which address was referenced to which */
-	if (!add_new_item_to_nodes_info(nodes_info, line))
-	{
-		std::cerr << "add_new_item_to_nodes_info error" << std::endl;
-		exit(1);
-	}
+		in_file >> line;
+		if (in_file.eof() || line.empty())
+			return;
 
-	if (next && (*next) != nullptr)
-	{
-		(*curr)->m_next = *next;
+		node_data = get_node_data_from_line(line);
+
+		/** deserialization */
+		if (count == 0)
+		{
+			tmp_ptr = new ListNode(node_data);
+			(*curr) = tmp_ptr;
+		}
+		else
+		{
+			curr_ptr = tmp_ptr;
+			tmp_ptr->m_next = new ListNode(node_data);
+			tmp_ptr = tmp_ptr->m_next;
+			tmp_ptr->m_prev = curr_ptr;
+		}
+//		//TODO: удалить
+//		std::cout << tmp_ptr->m_data << std::endl;
+
+		size_t slash_ind = line.find("/");  //TODO: check it if there's an error
+		if (slash_ind == std::string::npos)
+		{
+			std::cerr << "Incorrect format of serialization!" << std::endl;
+			std::cerr << "Couldn't find a slash after node data!" << std::endl;
+			exit(1);
+		}
+		/**
+		 * key - address of the node before serialization,
+		 * value - ptr to the new deserialized node
+		 * */
+		nodes_map.emplace(atol(line.substr(0, slash_ind).c_str()), tmp_ptr);
+		/** adds information to nodes_info about which address was referenced to which */
+		if (!add_new_item_to_nodes_info(nodes_info, line))
+		{
+			std::cerr << "add_new_item_to_nodes_info error" << std::endl;
+			exit(1);
+		}
+
+		count++;
 	}
-	recursion_deserialize(&(*curr)->m_prev, curr, nodes_map, nodes_info, in_file);
+	tail_ptr = tmp_ptr;
 }
 
 void Deserializator::make_pointers(
@@ -150,7 +166,7 @@ void Deserializator::make_pointers(
 	}
 }
 
-ListNode *Deserializator::deserialize_list(std::ifstream &in_file)
+ListNode *Deserializator::deserialize_list(std::ifstream &in_file, ListNode *tail_ptr, int &count)
 {
 	ListNode *new_data = nullptr;
 	/** структура данных с адресом предыдущего состояния
@@ -158,7 +174,7 @@ ListNode *Deserializator::deserialize_list(std::ifstream &in_file)
 	std::map<unsigned long long, ListNode *>	addrs_with_nodes;
 	std::map<std::string, std::string>			nodes_info;
 
-	recursion_deserialize(&new_data, nullptr, addrs_with_nodes, nodes_info, in_file);
+	deserialize(&new_data, tail_ptr, addrs_with_nodes, nodes_info, in_file, count);
 
 	//TODO удалить
 

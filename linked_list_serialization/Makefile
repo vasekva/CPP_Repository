@@ -2,11 +2,11 @@ NAME = run
 
 INCLUDES = -I ./includes/
 
-CXX = clang++
+CXX = c++
 #CXXFLAGS = -g -Wall -Wextra -Werror -std=c++14 $(INCLUDES)
 CXXFLAGS = -g -std=c++14 $(INCLUDES)
 
-SRCS = main.cpp Serializator.cpp Deserializator.cpp
+SRCS = main.cpp Serializator.cpp Deserializator.cpp ListRand.cpp
 
 all: $(SRCS)
 	@($(CXX) $(CXXFLAGS) $(SRCS) -o $(NAME))
