@@ -1,9 +1,6 @@
 #include <iostream>
 
-//#include <time.h>
 #include <random>
-
-//#include <map>
 
 #include "ListRand.hpp"
 #include "Serializator.hpp"
@@ -18,43 +15,6 @@
 #define BLUE	"\033[34m"
 #define PURPLE  "\033[0;35m"
 #define NORM	"\033[0m"
-
-// вектор расположен в убывающем порядке адресов!!!
-///**
-// * бинарный поиск индекса звена(индекс находится в строке информации о звене)
-// * из списка информации всех звеньев
-// * */
-//size_t find_ind_of_node(const std::vector<std::string> &nodes_info, const unsigned long long &desired_addr)
-//{
-//	size_t pos;
-//	size_t low = 0, high = nodes_info.size() - 1, mid = (low + high) / 2;
-//
-//	unsigned long long curr_addr = 0; // an address of the node itself
-////	unsigned long long rand_addr = 0; // an address of the additional node's pointer
-//
-//	while (low <= high)
-//	{
-//		curr_addr = std::atol(nodes_info[mid].c_str());
-//
-//		if (desired_addr == curr_addr)
-//			break;
-//		else if (desired_addr > curr_addr)
-//			high = mid - 1;
-//		else
-//			low = mid + 1;
-//
-//		mid = (high + low) / 2;
-//	}
-//
-//	size_t fst_slash = nodes_info[mid].find("/");
-//	// длина числа, вычисляемая путем нахождения индекса второго слеша с позиции первого
-//	size_t num_len = std::string(&nodes_info[mid][fst_slash + 1]).find("/");
-//
-//	//TODO:: могут быть погрехи в вытаскивании индекса из строки
-//	pos = atoi(nodes_info[mid].substr(fst_slash + 1, num_len).c_str());
-//
-//	return (pos);
-//}
 
 /** Creating a linked list with size N */
 static void create_list(ListNode **tmp_ptr, ListNode **main_obj, const size_t &N)
@@ -188,7 +148,7 @@ int main(void)
 	ListNode	*tmp_ptr = nullptr;
 
 
-	const int LST_SIZE = 25;
+	const int LST_SIZE = 3;
 	/** Creating a linkedList with N nodes */
 	create_list(&tmp_ptr, &main_object, LST_SIZE);
 
