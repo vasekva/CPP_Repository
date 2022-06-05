@@ -45,17 +45,10 @@ void Serializator::recursion_serialize(const ListNode *const ptr, size_t &ind, s
 	out_file << str;
 }
 
-bool Serializator::serialize_list(const ListNode *const ptr, const std::string &file_name)
+bool Serializator::serialize_list(const ListNode *const ptr, std::ofstream &out_file)
 {
 	size_t ind = 0;
 
-	std::ofstream out_file(file_name);
-	if (!out_file)
-	{
-		puts("Couldn't open the file");
-		return (false);
-	}
 	recursion_serialize(ptr, ind, out_file); // рекурсивная сериализация списка
-	out_file.close();
 	return (true);
 }

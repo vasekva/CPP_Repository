@@ -40,7 +40,7 @@ std::string Deserializator::get_node_data_from_line(const std::string &line)
 	return (node_data);
 }
 
-bool Deserializator::add_new_item_to_nodes_info(const std::string &line)
+bool Deserializator::add_new_item_to_nodes_info(std::map<std::string, std::string> &nodes_info, const std::string &line)
 {
 	// TODO:  вынести в отдельный метод
 	std::string addr_from;
@@ -50,6 +50,7 @@ bool Deserializator::add_new_item_to_nodes_info(const std::string &line)
 	if (slash_pos == std::string::npos)
 	{
 		std::cerr << "deserialize error: incorrect find return\n";
+		return (false);
 	}
 	addr_from = line.substr(0, slash_pos);
 
@@ -57,13 +58,18 @@ bool Deserializator::add_new_item_to_nodes_info(const std::string &line)
 	if (slash_pos == std::string::npos)
 	{
 		std::cerr << "deserialize error: incorrect find return\n";
+		return (false);
 	}
 	addr_to = line.substr(slash_pos + 1);
+
+	if (addr_from.empty() || addr_to.empty())
+		return (false);
 
 	//TODO: удалить
 	std::cout << addr_from << ":" << addr_to << std::endl;
 
 	nodes_info.emplace(addr_from, addr_to);
+	return (true);
 }
 
 void Deserializator::recursion_deserialize(ListNode **curr, ListNode **next,
@@ -99,7 +105,11 @@ void Deserializator::recursion_deserialize(ListNode **curr, ListNode **next,
 	 * */
 	nodes_map.emplace(atol(line.substr(0, slash_ind).c_str()), *curr);
 	/** adds information to nodes_info about which address was referenced to which */
-	add_new_item_to_nodes_info(nodes_info, line);
+	if (!add_new_item_to_nodes_info(nodes_info, line))
+	{
+		std::cerr << "add_new_item_to_nodes_info error" << std::endl;
+		exit(1);
+	}
 
 	if (next && (*next) != nullptr)
 	{
@@ -108,9 +118,7 @@ void Deserializator::recursion_deserialize(ListNode **curr, ListNode **next,
 	recursion_deserialize(&(*curr)->m_prev, curr, nodes_map, nodes_info, in_file);
 }
 
-
-
-void Deserializator::make_pointers(const std::string &file_name,
+void Deserializator::make_pointers(
 	const std::map<unsigned long long, ListNode *> &addrs_with_nodes,
 	const std::map<std::string, std::string> &nodes_info)
 {
@@ -142,24 +150,15 @@ void Deserializator::make_pointers(const std::string &file_name,
 	}
 }
 
-ListNode *Deserializator::deserialize_list(void)
+ListNode *Deserializator::deserialize_list(std::ifstream &in_file)
 {
-//	std::map<unsigned long long, std::pair<int, std::string>> nodes_info;
 	ListNode *new_data = nullptr;
 	/** структура данных с адресом предыдущего состояния
 	в виде ключа и указателем на звено в значении */
 	std::map<unsigned long long, ListNode *>	addrs_with_nodes;
 	std::map<std::string, std::string>			nodes_info;
 
-	const std::string file_name = "some_file.txt";
-	std::ifstream in_file(file_name.c_str());
-	if (!in_file)
-	{
-		puts("Couldn't open the file");
-		return (nullptr);
-	}
 	recursion_deserialize(&new_data, nullptr, addrs_with_nodes, nodes_info, in_file);
-	in_file.close();
 
 	//TODO удалить
 
@@ -175,7 +174,7 @@ ListNode *Deserializator::deserialize_list(void)
 //				  "/" << it->second->m_data << std::endl;
 //	}
 
-	make_pointers(file_name, addrs_with_nodes, nodes_info);
+	make_pointers(addrs_with_nodes, nodes_info);
 
 	return (new_data);
 }

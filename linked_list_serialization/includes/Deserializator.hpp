@@ -16,15 +16,15 @@ class Deserializator
 	public:
 		Deserializator();
 		~Deserializator();
-		ListNode *deserialize_list(void);
+		ListNode *deserialize_list(std::ifstream &in_file);
 	private:
-		bool		add_new_item_to_nodes_info(const std::map<std::string, std::string> &nodes_info, const std::string &line);
+		bool		add_new_item_to_nodes_info(std::map<std::string, std::string> &nodes_info, const std::string &line);
 		std::string get_node_data_from_line(const std::string &line);
 		std::string hex_to_str(const ListNode *const ptr);
 		void recursion_deserialize(ListNode **curr, ListNode **next,
 			std::map<unsigned long long, ListNode *> &nodes_map,
 			std::map<std::string, std::string> &nodes_info, std::ifstream &in_file);
-		void make_pointers(const std::string &file_name,
+		void make_pointers(
 			const std::map<unsigned long long, ListNode *> &addrs_with_nodes,
 			const std::map<std::string, std::string> &nodes_info);
 

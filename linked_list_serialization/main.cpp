@@ -57,7 +57,10 @@ static void list_print(ListNode	*deserialized_obj)
 		std::cout << std::endl;
 		deserialized_obj = deserialized_obj->m_prev;
 	}
-	std::cout << deserialized_obj->m_data << std::endl;
+	std::cout << deserialized_obj->m_data;
+	if (deserialized_obj->m_rand)
+		std::cout << " " << deserialized_obj->m_rand->m_data;
+	std::cout << std::endl;
 //	std::cout << "==================" << std::endl;
 //	while (deserialized_obj->m_next)
 //	{
@@ -107,9 +110,6 @@ static size_t get_random_value(const int MAX)
 	std::mt19937 mt(rd());
 	std::uniform_int_distribution<int> dist(0, MAX);
 
-//	for (int i = 0; i < 16; ++i)
-//		std::cout << dist(mt) << "\n";
-
 	return (dist(mt));
 }
 
@@ -148,7 +148,7 @@ int main(void)
 	ListNode	*tmp_ptr = nullptr;
 
 
-	const int LST_SIZE = 3;
+	const int LST_SIZE = 2;
 	/** Creating a linkedList with N nodes */
 	create_list(&tmp_ptr, &main_object, LST_SIZE);
 
@@ -160,24 +160,39 @@ int main(void)
 ==  Serialization and  deserialization ==
 =========================================
 */
+	const std::string file_name = "some_file.txt";
 
 	/** Serialization */
 	Serializator serializator = Serializator();
-	const std::string file_name = "some_file.txt";
-	if (!serializator.serialize_list(main_object, file_name))
+	std::ofstream out_file(file_name);
+	if (!out_file)
+	{
+		puts("Couldn't open the file");
+		return (false);
+	}
+	if (!serializator.serialize_list(main_object, out_file))
 	{
 		std::cerr << "serialize error!" << std::endl;
 		exit(-1);
 	}
+	out_file.close();
 
 	/** Deserialization */
+	std::ifstream in_file(file_name.c_str());
+	if (!in_file)
+	{
+		puts("Couldn't open the file");
+		return (false);
+	}
 	Deserializator deserializator = Deserializator();
-	deserialized_obj = deserializator.deserialize_list();
+	deserialized_obj = deserializator.deserialize_list(in_file);
 	if (deserialized_obj == nullptr)
 	{
 		std::cerr << "deserialize error!" << std::endl;
 		exit(1);
 	}
+
+	in_file.close();
 
 /**
 ================

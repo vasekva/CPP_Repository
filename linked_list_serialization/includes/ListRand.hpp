@@ -2,6 +2,7 @@
 #define LISTRAND_HPP
 
 #include <string>
+#include <fstream>
 
 class ListNode
 {
@@ -21,5 +22,22 @@ class ListNode
 		~ListNode() {}
 };
 
+class ListRand
+{
+	public:
+		ListNode *Head;
+		ListNode *Tail;
+		int Count;
+
+		void Serialize(std::ofstream &out_file)
+		{
+
+		}
+
+		void Deserialize(std::ifstream &in_file)
+		{
+
+		}
+};
 
 #endif
