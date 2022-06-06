@@ -40,7 +40,7 @@ class ListRand
 
 		void Serialize(std::ofstream &out_file);
 		void Deserialize(std::ifstream &in_file);
-		bool clear_list(void);
+		void clear_list(void);
 	private:
 		ListRand();
 };

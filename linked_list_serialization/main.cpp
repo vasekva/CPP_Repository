@@ -133,7 +133,8 @@ int main(void)
 	ListNode 	*head = nullptr;
 	ListNode 	*tail = nullptr;
 
-	const int LST_SIZE = 70;
+	// размер списка
+	const int LST_SIZE = 13;
 	/** Creating a linkedList with N nodes */
 	create_list(&head, &tail, LST_SIZE);
 
@@ -145,10 +146,8 @@ int main(void)
 	/** Serialization */
 	make_serialization(head, tail, file_name);
 
+	head = nullptr;
+	tail = nullptr;
 	/** Deserialization */
 	make_deserialization(head, tail, file_name);
-
-// TODO: сделать удаление всего списка
-//  delete main_object;
-//	 delete deserialized_obj;
 }

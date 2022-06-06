@@ -4,17 +4,6 @@
 Serializator::Serializator() {}
 Serializator::~Serializator() {}
 
-//unsigned long long Serializator::hex_to_digit(const ListNode *const ptr)
-//{
-//	std::stringstream str_stream;
-//	unsigned long long digit = 0;
-//
-//	str_stream << std::hex << ptr; // from ptr to hex to binary stream
-//	str_stream >> digit; // from binary to u_longlong
-//
-//	return (digit);
-//}
-
 std::string Serializator::hex_to_str(const ListNode *const ptr)
 {
 	size_t				digit_addr;
