@@ -35,7 +35,7 @@ static void create_list(ListNode **main_obj, ListNode **tail, const size_t &N)
  * a node № ind_from to
  * a node № ind_to
  * */
-bool	make_ptr(ListNode *list, const size_t &ind_from, const size_t &ind_to)
+static bool	make_ptr(ListNode *list, const size_t &ind_from, const size_t &ind_to)
 {
 	ListNode *from = list;
 	ListNode *to = list;
@@ -98,7 +98,7 @@ static void make_random_refs(ListNode **list, const int LST_SIZE)
 	refs.clear();
 }
 
-bool make_serialization(ListNode *head, ListNode *tail, const std::string &file_name)
+static bool make_serialization(ListNode *head, ListNode *tail, const std::string &file_name)
 {
 	std::ofstream out_file(file_name);
 	if (!out_file)
@@ -113,7 +113,7 @@ bool make_serialization(ListNode *head, ListNode *tail, const std::string &file_
 	return (true);
 }
 
-bool make_deserialization(ListNode *head, ListNode *tail, const std::string &file_name)
+static bool make_deserialization(ListNode *head, ListNode *tail, const std::string &file_name)
 {
 	std::ifstream in_file(file_name.c_str());
 	if (!in_file)
@@ -140,11 +140,6 @@ int main(void)
 	/** Creating additional pointers to another Nodes for other ones */
 	make_random_refs(&head, LST_SIZE);
 
-/**
-=========================================
-==  Serialization and  deserialization ==
-=========================================
-*/
 	const std::string file_name = "some_file.txt";
 
 	/** Serialization */

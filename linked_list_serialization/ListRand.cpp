@@ -1,5 +1,18 @@
 #include "ListRand.hpp"
 
+bool ListRand::clear_list(void)
+{
+	while (Tail)
+	{
+		if (!Tail)
+			return (true);
+		Tail = Tail->m_prev;
+		Tail->m_next->m_prev = nullptr;
+		delete Tail->m_next;
+		Tail->m_next = nullptr;
+	}
+};
+
 ListRand::ListRand(ListNode *const fst_ptr, ListNode *const lst_ptr)
 	: Head(fst_ptr), Tail(lst_ptr)
 {
@@ -15,7 +28,18 @@ void ListRand::Serialize(std::ofstream &out_file)
 	{
 		std::cerr << "serialize error!" << std::endl;
 		out_file.close();
+		clear_list();
 		exit(1);
+	}
+	else
+		clear_list();
+
+	//TODO: удалить
+	std::cout << "EEEEEEEEEEEEEEEEE" << std::endl;
+	while (Head)
+	{
+		std::cout << "===" << Head->m_data << std::endl;
+		Head = Head->m_next;
 	}
 }
 
