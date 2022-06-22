@@ -8,8 +8,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SCR_WIDTH = 1800;
+const unsigned int SCR_HEIGHT = 1600;
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void processInput(GLFWwindow *window);
@@ -19,6 +19,8 @@ void processInput(GLFWwindow *window);
 //    VERTEX = 0, // GL_VERTEX_SHADER
 //    FRAGMENT = 1, // GL_FRAGMENT_SHADER
 //};
+
+float mixValue = 0.2f;
 
 bool create_window(GLFWwindow **window)
 {
@@ -67,11 +69,11 @@ int main(int argc, const char **argv)
     
     // set up vertex data (and buffer(s)) and configure vertex attributes
     float vertices[] = {
-        // positions            // colors
-        0.5f,   0.5f,   0.0f,   1.0f,   0.0f,   0.0f,   1.0f, 1.0f, // top right
-        0.5f,   -0.5f,  0.0f,   0.0f,   1.0f,   0.0f,   1.0f, 0.0f, // bottom right
+        // positions            // colors               // texture coordinates
+        0.5f,   0.5f,   0.0f,   1.0f,   0.0f,   0.0f,   2.0f, 2.0f, // top right
+        0.5f,   -0.5f,  0.0f,   0.0f,   1.0f,   0.0f,   2.0f, 0.0f, // bottom right
         -0.5f,  -0.5f,  0.0f,   0.0f,   0.0f,   1.0f,   0.0f, 0.0f, // bottom left
-        -0.5f,   0.5f,  0.0f,   1.0f,   1.0f,   0.0f,   0.0f, 1.0f  // top left
+        -0.5f,   0.5f,  0.0f,   1.0f,   1.0f,   0.0f,   0.0f, 2.0f  // top left
     };
     
     unsigned int indices[] = {
@@ -170,6 +172,8 @@ int main(int argc, const char **argv)
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, texture2);
         
+        ourShader.setFLoat("mixValue", mixValue);
+        
         // be sure to activate the shader before any calls to glUniform
         ourShader.use();
         glBindVertexArray(VAO);
@@ -197,6 +201,18 @@ void processInput(GLFWwindow *window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+    {
+        mixValue += 0.005f;
+        if (mixValue >= 1.0f)
+            mixValue = 1.0f;
+    }
+    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+    {
+        mixValue -= 0.005f;
+        if (mixValue <= 0.0f)
+            mixValue = 0.0f;
+    }
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes

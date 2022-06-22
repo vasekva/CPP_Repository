@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "16510FE82860B2D4005A89D9"
-               BuildableName = "Open_GL_1.2"
+               BuildableName = "Open_GL_1.3 (Texture)"
                BlueprintName = "Open_GL_1.3 (Texture)"
                ReferencedContainer = "container:Open_GL_1.3 (Texture).xcodeproj">
             </BuildableReference>
@@ -45,7 +45,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "16510FE82860B2D4005A89D9"
-            BuildableName = "Open_GL_1.2"
+            BuildableName = "Open_GL_1.3 (Texture)"
             BlueprintName = "Open_GL_1.3 (Texture)"
             ReferencedContainer = "container:Open_GL_1.3 (Texture).xcodeproj">
          </BuildableReference>
@@ -62,7 +62,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "16510FE82860B2D4005A89D9"
-            BuildableName = "Open_GL_1.2"
+            BuildableName = "Open_GL_1.3 (Texture)"
             BlueprintName = "Open_GL_1.3 (Texture)"
             ReferencedContainer = "container:Open_GL_1.3 (Texture).xcodeproj">
          </BuildableReference>
